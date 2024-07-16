@@ -1,10 +1,10 @@
-### -CrackYourPlacement
+# -CrackYourPlacement
 45 Days Challenge to help you prepare for your upcoming DSA Interviews 
 
 
 ## Day-1
 
-# 1. Remove duplicates from the sorted array - two pointer method
+### 1. Remove duplicates from the sorted array - two pointer method
    - start from i=j=1
    - when the prev element is equal to the current element j pointer stays at the unique element and i moves forward
    - when prev element is not equal to the current element,we replace the duplicate places by a unique value
@@ -20,7 +20,7 @@
         return j;
     }
 
-# 2. Moving all zeros to the right maintaining the order of non zero elements -two pointer
+### 2. Moving all zeros to the right maintaining the order of non zero elements -two pointer
    - start from i=j=0
    - i moves forward till it find a non zero element
    - j remains there at the zero element position
@@ -36,7 +36,7 @@
         }
     }
   
-# 3. Best time t buy and sell a stock - Kadane's algorithmn dynammic programming
+### 3. Best time t buy and sell a stock - Kadane's algorithmn dynammic programming
    - buy is at index 0
    - update buy if a cheaper stock is found
    - update profit if the diff between the current price of the stock - buy is greater than the prev profit
@@ -52,7 +52,7 @@
         return profit;
     }
   
-# 4. Two Sum - HashMap
+### 4. Two Sum - HashMap
    - if target - present num is present in the hashmap , return {i,pairIdx[target-num]}
    - pairIdx[num]=i
    -
@@ -68,7 +68,7 @@
         return {};
     }
   
-# 5. Merge sorted array - two pointer method
+### 5. Merge sorted array - two pointer method
   - intialise k=m+n-1
   - iterating from the end of both the arrays, find the largest ele from the end of both the arrays and initialise it to the end of array 1
   - 
@@ -92,7 +92,7 @@
 
 ## Day-2
 
-# 1. Majority element - Moore's Voting Algorithm or Unordered map frequency
+### 1. Majority element - Moore's Voting Algorithm or Unordered map frequency
    - count the freq of each element
    - if map.second is greater than n/2 return it
    - 
@@ -112,7 +112,7 @@
       }
   
 
-# 2. Duplicate number - Slow and fast two pointer method
+### 2. Duplicate number - Slow and fast two pointer method
    - Traverse the array such that is slow pointer moves one step at a time while fast moves two steps at a time. This continues until slow and fast meet at the same position within the cycle.
    - After reinitialiszing slow at start, Again traverse the array such that slow and fast move one step at a time. They continue moving until they meet again at the start of the cycle as the distance between slow and fast is decreasing by one in each iteration.
    - 
@@ -132,7 +132,7 @@
     }
 
 
-# 3. Sorting colors - 3 pointers until mid crosses high
+### 3. Sorting colors - 3 pointers until mid crosses high
    - If nums[mid] is 0 (red), swap it with nums[low], increment both low and mid.
    - If nums[mid] is 1 (white), leave it in place and increment mid.
    - If nums[mid] is 2 (blue), swap it with nums[high], decrement right.
@@ -154,7 +154,7 @@
     }
   
 
-# 4. Buy and Sell the stock part 2 - Greedy algorithm
+### 4. Buy and Sell the stock part 2 - Greedy algorithm
    - iterate from index 1 and check if the current price is greater than the profit price then add the difference to the max.
    - Regardless of whether a profit was made or not, the start is updated to the current price (prices[i]). This step prepares for the next iteration, considering the current day's price as the new buying price.
    - 
@@ -170,7 +170,7 @@
         return max;
     }
 
-# 5. Find All the duplicates - Hashmap
+### 5. Find All the duplicates - Hashmap
    - doing -1 because length = n => index from 0 to n-1  and range of numbers = [1,n]
    - if value at the index is negative => already visited
    - if its not negative we mark it as negative as visited
