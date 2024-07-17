@@ -186,7 +186,137 @@
             }
         }
         return ans;
+
     }
+
+
+## Day-3
+
+### 1. Set matrices as zero - Matrices and 
+   - initialise a vector map to save the coordinates of ele which are 0
+   - make all the rows and col as zero for each position
+   -
+      void setZeroes(vector<vector<int>>& matrix) {
+              int rows=matrix.size(),cols=matrix[0].size();
+              vector<pair<int,int>> mp;
+              for(int i=0;i<rows;i++){
+                  for(int j=0;j<cols;j++){
+                      if(matrix[i][j]==0)
+                          mp.push_back(make_pair(i,j));
+                  }
+              }
+              for(auto i:mp){
+                  int j=0;
+                  while(j<cols){
+                      matrix[i.first][j]=0;
+                      j++;
+                  }
+                  j=0;
+                  while(j<rows){
+                      matrix[j][i.second]=0;
+                      j++;
+                  }
+              }
+          }
+
+### 2. Choclate distribution - sliding window
+   - sort the array and traverse to each window of size of number of childer and find the diff
+   -
+           long long findMinDiff(vector<long long> a, long long n, long long m){
+              if (m == 0 || n == 0)
+                  return 0;
+              sort(a.begin(), a.end());
+              if (n < m)
+                  return -1;
+              long long min_diff = LLONG_MAX;
+              for (long long i = 0; i + m - 1 < n; ++i) {
+                  long long diff = a[i + m - 1] - a[i];
+                  if (diff < min_diff)
+                      min_diff = diff;
+              }
+              return min_diff;
+          } 
+
+### 3. Subarray sums divided by k - Prefix sum with Hashmap
+   - If it has, it means there are subarrays that sum to a multiple of ( k ), and you increase your count by how many times this remainder has been seen.
+   - Update the hash map to include this new remainder.
+   - int subarraysDivByK(vector<int>& nums, int k) {
+        int count=0;
+        int prefixSum=0;
+        unordered_map<int,int> prefixMap;
+        prefixMap[0]=1;
+        for(int num :nums){
+            prefixSum+=num;
+            int mod=prefixSum%k;
+            if(mod<0){
+                mod+=k;
+            }
+            if(prefixMap.find(mod)!=prefixMap.end()){
+                count+=prefixMap[mod];
+                prefixMap[mod]+=1;
+            }else{
+                prefixMap[mod]=1;
+            }
+        }
+        return count;
+    }
+    
+### 4. Container with most water - two pointers
+   - intialise two pointers left and right at the ends of the array , call the max area at each window
+   - always choose the larger height and shorter the window accordingly
+   -
+     int maxArea(vector<int>& height) {
+        int left=0,right=height.size()-1;
+        int area=0;
+        while(left<right){
+            int curr=(right-left)*min(height[left],height[right]);
+            area=max(area,curr);
+            if(height[left]<height[right])
+                left++;
+            else
+                right--;
+        }
+        return area;
+    }
+
+### 5. Three Sum - two pointers
+   - intialise the fixed element tar and find two numbers for the the sum =-tar
+   - for each i , j=i+1 , and search in the window from j to k , according to the sum and tar
+   - skip the repeating numbers
+   -
+     vector<vector<int>> threeSum(vector<int>& nums) {
+        sort(nums.begin(),nums.end());
+        vector<vector<int>> v;
+        int sum=0;
+        int tar=0;
+        int j=0;
+        int k=nums.size()-1;
+        for(int i=0;i<nums.size()-2;i++){
+            if(i>0 && nums[i]==nums[i-1]) 
+                continue;
+            j=i+1;
+            k=nums.size()-1;
+            tar=-nums[i];
+            while(j<k){
+                sum=nums[j]+nums[k];
+                if(sum<tar){
+                    j++;
+                }
+                else if(tar<sum){
+                    k--;
+                }
+                else{
+                    v.push_back({nums[i],nums[j],nums[k]});
+                    j++;
+                    k--;
+                    while(j < k && nums[j] == nums[j - 1]) j++;
+                    while(j < k && nums[k] == nums[k + 1]) k--;
+                }
+            }
+        }
+        return v;
+    }
+
                                    
 
    
