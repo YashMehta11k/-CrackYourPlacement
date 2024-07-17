@@ -240,26 +240,27 @@
 ### 3. Subarray sums divided by k - Prefix sum with Hashmap
    - If it has, it means there are subarrays that sum to a multiple of ( k ), and you increase your count by how many times this remainder has been seen.
    - Update the hash map to include this new remainder.
-   - int subarraysDivByK(vector<int>& nums, int k) {
-        int count=0;
-        int prefixSum=0;
-        unordered_map<int,int> prefixMap;
-        prefixMap[0]=1;
-        for(int num :nums){
-            prefixSum+=num;
-            int mod=prefixSum%k;
-            if(mod<0){
-                mod+=k;
-            }
-            if(prefixMap.find(mod)!=prefixMap.end()){
-                count+=prefixMap[mod];
-                prefixMap[mod]+=1;
-            }else{
-                prefixMap[mod]=1;
-            }
-        }
-        return count;
-    }
+   -
+         int subarraysDivByK(vector<int>& nums, int k) {
+           int count=0;
+           int prefixSum=0;
+           unordered_map<int,int> prefixMap;
+           prefixMap[0]=1;
+           for(int num :nums){
+               prefixSum+=num;
+               int mod=prefixSum%k;
+               if(mod<0){
+                   mod+=k;
+               }
+               if(prefixMap.find(mod)!=prefixMap.end()){
+                   count+=prefixMap[mod];
+                   prefixMap[mod]+=1;
+               }else{
+                   prefixMap[mod]=1;
+               }
+           }
+           return count;
+       }
     
 ### 4. Container with most water - two pointers
    - intialise two pointers left and right at the ends of the array , call the max area at each window
@@ -317,6 +318,40 @@
         return v;
     }
 
+### 6. Four Sum
+   - same as above with extra loop for j
+   - vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> ans;
+        for(int i=0; i<n-3; i++){
+            if(i>0 && nums[i] == nums[i-1])
+                continue;
+            for(int j = i+1; j<n-2; j++){
+                if(j>i+1 && nums[j]==nums[j-1])
+                    continue;
+                int start = j+1, end = n-1;
+                long tempTarget = (long)target - (nums[i]+nums[j]);
+                while(start < end){
+                    long tempSum = nums[end]+nums[start];
+                    if(tempSum < tempTarget){
+                        start++;
+                    }else if(tempSum > tempTarget){
+                        end--;
+                    }else{
+                        ans.push_back( {nums[i], nums[j], nums[start], nums[end] });
+                        while(start < end && nums[end] == nums[end-1])
+                            end--;
+                        while(start < end && nums[start] == nums[start+1])
+                            start++;
+                        start++; end--;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
                                    
 
    
