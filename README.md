@@ -196,28 +196,28 @@
    - initialise a vector map to save the coordinates of ele which are 0
    - make all the rows and col as zero for each position
    -
-      void setZeroes(vector<vector<int>>& matrix) {
-              int rows=matrix.size(),cols=matrix[0].size();
-              vector<pair<int,int>> mp;
-              for(int i=0;i<rows;i++){
-                  for(int j=0;j<cols;j++){
-                      if(matrix[i][j]==0)
-                          mp.push_back(make_pair(i,j));
-                  }
-              }
-              for(auto i:mp){
-                  int j=0;
-                  while(j<cols){
-                      matrix[i.first][j]=0;
-                      j++;
-                  }
-                  j=0;
-                  while(j<rows){
-                      matrix[j][i.second]=0;
-                      j++;
-                  }
-              }
-          }
+         void setZeroes(vector<vector<int>>& matrix) {
+                 int rows=matrix.size(),cols=matrix[0].size();
+                 vector<pair<int,int>> mp;
+                 for(int i=0;i<rows;i++){
+                     for(int j=0;j<cols;j++){
+                         if(matrix[i][j]==0)
+                             mp.push_back(make_pair(i,j));
+                     }
+                 }
+                 for(auto i:mp){
+                     int j=0;
+                     while(j<cols){
+                         matrix[i.first][j]=0;
+                         j++;
+                     }
+                     j=0;
+                     while(j<rows){
+                         matrix[j][i.second]=0;
+                         j++;
+                     }
+                 }
+             }
 
 ### 2. Choclate distribution - sliding window
    - sort the array and traverse to each window of size of number of childer and find the diff
@@ -241,117 +241,269 @@
    - If it has, it means there are subarrays that sum to a multiple of ( k ), and you increase your count by how many times this remainder has been seen.
    - Update the hash map to include this new remainder.
    -
-         int subarraysDivByK(vector<int>& nums, int k) {
-           int count=0;
-           int prefixSum=0;
-           unordered_map<int,int> prefixMap;
-           prefixMap[0]=1;
-           for(int num :nums){
-               prefixSum+=num;
-               int mod=prefixSum%k;
-               if(mod<0){
-                   mod+=k;
-               }
-               if(prefixMap.find(mod)!=prefixMap.end()){
-                   count+=prefixMap[mod];
-                   prefixMap[mod]+=1;
-               }else{
-                   prefixMap[mod]=1;
-               }
-           }
-           return count;
-       }
+            int subarraysDivByK(vector<int>& nums, int k) {
+              int count=0;
+              int prefixSum=0;
+              unordered_map<int,int> prefixMap;
+              prefixMap[0]=1;
+              for(int num :nums){
+                  prefixSum+=num;
+                  int mod=prefixSum%k;
+                  if(mod<0){
+                      mod+=k;
+                  }
+                  if(prefixMap.find(mod)!=prefixMap.end()){
+                      count+=prefixMap[mod];
+                      prefixMap[mod]+=1;
+                  }else{
+                      prefixMap[mod]=1;
+                  }
+              }
+              return count;
+          }
     
 ### 4. Container with most water - two pointers
    - intialise two pointers left and right at the ends of the array , call the max area at each window
    - always choose the larger height and shorter the window accordingly
    -
-     int maxArea(vector<int>& height) {
-        int left=0,right=height.size()-1;
-        int area=0;
-        while(left<right){
-            int curr=(right-left)*min(height[left],height[right]);
-            area=max(area,curr);
-            if(height[left]<height[right])
-                left++;
-            else
-                right--;
-        }
-        return area;
-    }
+           int maxArea(vector<int>& height) {
+              int left=0,right=height.size()-1;
+              int area=0;
+              while(left<right){
+                  int curr=(right-left)*min(height[left],height[right]);
+                  area=max(area,curr);
+                  if(height[left]<height[right])
+                      left++;
+                  else
+                      right--;
+              }
+              return area;
+          }
 
 ### 5. Three Sum - two pointers
    - intialise the fixed element tar and find two numbers for the the sum =-tar
    - for each i , j=i+1 , and search in the window from j to k , according to the sum and tar
    - skip the repeating numbers
    -
-     vector<vector<int>> threeSum(vector<int>& nums) {
-        sort(nums.begin(),nums.end());
-        vector<vector<int>> v;
-        int sum=0;
-        int tar=0;
-        int j=0;
-        int k=nums.size()-1;
-        for(int i=0;i<nums.size()-2;i++){
-            if(i>0 && nums[i]==nums[i-1]) 
-                continue;
-            j=i+1;
-            k=nums.size()-1;
-            tar=-nums[i];
-            while(j<k){
-                sum=nums[j]+nums[k];
-                if(sum<tar){
-                    j++;
-                }
-                else if(tar<sum){
-                    k--;
-                }
-                else{
-                    v.push_back({nums[i],nums[j],nums[k]});
-                    j++;
-                    k--;
-                    while(j < k && nums[j] == nums[j - 1]) j++;
-                    while(j < k && nums[k] == nums[k + 1]) k--;
-                }
-            }
-        }
-        return v;
-    }
+           vector<vector<int>> threeSum(vector<int>& nums) {
+              sort(nums.begin(),nums.end());
+              vector<vector<int>> v;
+              int sum=0;
+              int tar=0;
+              int j=0;
+              int k=nums.size()-1;
+              for(int i=0;i<nums.size()-2;i++){
+                  if(i>0 && nums[i]==nums[i-1]) 
+                      continue;
+                  j=i+1;
+                  k=nums.size()-1;
+                  tar=-nums[i];
+                  while(j<k){
+                      sum=nums[j]+nums[k];
+                      if(sum<tar){
+                          j++;
+                      }
+                      else if(tar<sum){
+                          k--;
+                      }
+                      else{
+                          v.push_back({nums[i],nums[j],nums[k]});
+                          j++;
+                          k--;
+                          while(j < k && nums[j] == nums[j - 1]) j++;
+                          while(j < k && nums[k] == nums[k + 1]) k--;
+                      }
+                  }
+              }
+              return v;
+          }
 
 ### 6. Four Sum
    - same as above with extra loop for j
-   - vector<vector<int>> fourSum(vector<int>& nums, int target) {
-        
-        int n = nums.size();
-        sort(nums.begin(), nums.end());
-        vector<vector<int>> ans;
-        for(int i=0; i<n-3; i++){
-            if(i>0 && nums[i] == nums[i-1])
-                continue;
-            for(int j = i+1; j<n-2; j++){
-                if(j>i+1 && nums[j]==nums[j-1])
-                    continue;
-                int start = j+1, end = n-1;
-                long tempTarget = (long)target - (nums[i]+nums[j]);
-                while(start < end){
-                    long tempSum = nums[end]+nums[start];
-                    if(tempSum < tempTarget){
-                        start++;
-                    }else if(tempSum > tempTarget){
-                        end--;
-                    }else{
-                        ans.push_back( {nums[i], nums[j], nums[start], nums[end] });
-                        while(start < end && nums[end] == nums[end-1])
-                            end--;
-                        while(start < end && nums[start] == nums[start+1])
-                            start++;
-                        start++; end--;
-                    }
-                }
-            }
-        }
-        return ans;
-    }
-                                   
+   -
+           vector<vector<int>> fourSum(vector<int>& nums, int target) {
+              int n = nums.size();
+              sort(nums.begin(), nums.end());
+              vector<vector<int>> ans;
+              for(int i=0; i<n-3; i++){
+                  if(i>0 && nums[i] == nums[i-1])
+                      continue;
+                  for(int j = i+1; j<n-2; j++){
+                      if(j>i+1 && nums[j]==nums[j-1])
+                          continue;
+                      int start = j+1, end = n-1;
+                      long tempTarget = (long)target - (nums[i]+nums[j]);
+                      while(start < end){
+                          long tempSum = nums[end]+nums[start];
+                          if(tempSum < tempTarget){
+                              start++;
+                          }else if(tempSum > tempTarget){
+                              end--;
+                          }else{
+                              ans.push_back( {nums[i], nums[j], nums[start], nums[end] });
+                              while(start < end && nums[end] == nums[end-1])
+                                  end--;
+                              while(start < end && nums[start] == nums[start+1])
+                                  start++;
+                              start++; end--;
+                          }
+                      }
+                  }
+              }
+              return ans;
+          }
 
-   
+
+## Day - 4
+
+### 1. Maximum points obtained from cards - Sliding window 2 pointer technique
+   - Calculate the sum of the first k cards (starting from the left) and assign it to sum
+   - Initialize i to k-1 (starting from the last card of the first k cards) and j to n-1 (starting from the last card of the array).
+   - Iterate while i and j are within bounds (i >= 0 and j >= 0).
+   - Update sum by subtracting the card at index i (moving the left boundary of the window) and adding the card at index j
+   -
+           int maxScore(vector<int>& arr, int k) {
+              int n = arr.size();
+              int sum = 0;
+              for (int i = 0; i < k; i++) {
+                  sum += arr[i];
+              }
+              int ans = sum;
+              int i = k - 1;
+              int j = n - 1;
+              while (j >= 0 && i >= 0) {
+                  sum = sum - arr[i] + arr[j];
+                  ans = max(ans, sum);
+                  i--;
+                  j--;
+              }
+              return ans;
+          }
+
+
+### 2. Subarray sums equal to k - Hash Table and Prefix Sum
+   - Prefix Sum Calculation: Maintain a running total (preSum) as you iterate through the array.
+   - Hash Map Usage: Use a hash map to track the frequency of each prefix sum.
+   - Count Subarrays: For each element, check if preSum - k exists in the hash map to count subarrays with sum k, and update the hash map with the current preSum
+   -
+           int subarraySum(vector<int>& nums, int k) {
+              map<int,int> mp;
+              mp[0]=1;
+              int preSum=0;
+              int count=0;
+              for(int i=0;i<nums.size();i++){
+                  preSum+=nums[i];
+                  int remove=preSum-k;
+                  count+=mp[remove];
+                  mp[preSum]++;
+              }
+              return count;
+          }
+
+### 3. Spiral order matrix 
+   - set the borders right, left, top, bottom
+   - travel directions : left to right, top to bottom, right to left, bottom to  top
+   - drecrement the borders eventually
+   - 
+          vector<int> spiralOrder(vector<vector<int>>& matrix) {
+              vector<int>ans;
+              if (matrix.empty()) {
+                  return ans;
+              }
+              int dir=0;
+              int right=matrix[0].size()-1,left=0,top=0,bottom=matrix.size()-1;
+              while(bottom>=top && right>=left)
+              {
+                  if(dir==0)
+                  {
+                      for(int i=left;i<=right;i++)
+                      {
+                      ans.push_back(matrix[top][i]);
+                      }
+                      dir=1;
+                      top++;
+                  }
+                   else if (dir==1)
+                  {
+                      for(int i=top;i<=bottom;i++)
+                      {
+                      ans.push_back(matrix[i][right]);
+                      }
+                      dir=2;
+                      right--;
+                  }
+                  else if(dir==2)
+                  {
+                      for(int i=right;i>=left;i--)
+                      {
+                       ans.push_back(matrix[bottom][i]);
+                      }
+                      dir=3;
+                      bottom--;
+                  }
+                  else if(dir==3)
+                  {
+                      for(int i=bottom;i>=top;i--)
+                      {
+                      ans.push_back(matrix[i][left]);
+                      }
+                      left++;
+                      dir=0;
+                  }
+              }
+              return ans;
+          }
+
+### 4. Word Search - Backtracking
+   - we can start from any of the position in the matrix. So, we can traverse the complete matrix and choose each of the points as start point
+   - if the current size of string that we are forming is equal to the length of the string we need is equal then we just return true
+   - if the pointers used i, j get out of bound, or say if we are looking at some point that have already been included (if visited) or if the current position character does not lead us to the answer we return false (WE BACKTRACK)
+   -  We make the current position (i, j) visited and then move to the other four directions and if any of those returns true, we'll return true
+   -  Make the vis[i][j] = false after all the traversals
+   -
+              class Solution {
+         public:
+             int n, m;
+             vector<vector<char>> arr;
+             string s;
+             bool f(int i, int j, int k, vector<vector<bool>> &vis) {
+                 if(k == s.length()) return true;
+                 if(i < 0 || i >= m || j < 0 || j >= n || arr[i][j] != s[k] || vis[i][j]) return false;
+                 vis[i][j] = 1;
+                 if(f(i + 1, j, k + 1, vis) || f(i - 1, j, k + 1, vis) || f(i, j + 1, k + 1, vis) || f(i, j - 1, k + 1, vis)) return true;
+                 vis[i][j] = 0;
+                 return false;
+             }
+             bool exist(vector<vector<char>>& board, string word) {
+                 ios::sync_with_stdio(false);
+                 cin.tie(NULL);
+                 cout.tie(NULL);
+                 arr = board;
+                 s = word;
+                 m = arr.size();
+                 n = arr[0].size();
+                 vector<vector<bool>> vis(m, vector<bool>(n, 0));
+                 for(int i = 0;i < m;i++) {
+                     for(int j = 0;j < n;j++) {
+                         if(f(i, j, 0, vis)) return true;
+                     }
+                 }
+                 return false;
+             }
+         };
+      
+### 5. Jump Game - Dynammic programming
+   - For each index i, first check if i is greater than maxReach. If it is, return false because you cannot move further from this index.
+   - Update maxReach to be the maximum of the current maxReach and i + nums[i] (the farthest index that can be reached from i)
+   -
+               bool canJump(vector<int>& nums) {
+                 int n = nums.size();
+                 int maxReach = 0;
+                 for (int i = 0; i < n; ++i) {
+                     if (i > maxReach) {
+                         return false;
+                     }
+                     maxReach = max(maxReach, i + nums[i]);
+                 }
+                 return maxReach >= n - 1;
+             }
