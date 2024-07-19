@@ -9,16 +9,16 @@
    - when the prev element is equal to the current element j pointer stays at the unique element and i moves forward
    - when prev element is not equal to the current element,we replace the duplicate places by a unique value
    - 
-     int removeDuplicates(vector<int>& nums) {
-        int j=1;
-        for(int i=1;i<nums.size();i++){
-            if(nums[i]!=nums[i-1]){
-                nums[j]=nums[i];
-                j++;
-            }
-        }
-        return j;
-    }
+           int removeDuplicates(vector<int>& nums) {
+              int j=1;
+              for(int i=1;i<nums.size();i++){
+                  if(nums[i]!=nums[i-1]){
+                      nums[j]=nums[i];
+                      j++;
+                  }
+              }
+              return j;
+          }
 
 ### 2. Moving all zeros to the right maintaining the order of non zero elements -two pointer
    - start from i=j=0
@@ -26,68 +26,68 @@
    - j remains there at the zero element position
    - swap elements at i and j when a non zero element is found
    - 
-     void moveZeroes(vector<int>& nums) {
-        int j=0;
-        for(int i=0;i<nums.size();i++){
-            if(nums[i]!=0){
-                swap(nums[j],nums[i]);
-                j++;
-            }
-        }
-    }
+           void moveZeroes(vector<int>& nums) {
+              int j=0;
+              for(int i=0;i<nums.size();i++){
+                  if(nums[i]!=0){
+                      swap(nums[j],nums[i]);
+                      j++;
+                  }
+              }
+          }
   
 ### 3. Best time t buy and sell a stock - Kadane's algorithmn dynammic programming
    - buy is at index 0
    - update buy if a cheaper stock is found
    - update profit if the diff between the current price of the stock - buy is greater than the prev profit
    - 
-     int maxProfit(vector<int>& prices) {
-        int buy=prices[0],profit=0;
-        for(int i=1;i<prices.size();i++){
-            if(prices[i]<buy)
-                buy=prices[i];
-            else if(prices[i]-buy>profit)
-                profit=prices[i]-buy;        
-        }
-        return profit;
-    }
+           int maxProfit(vector<int>& prices) {
+              int buy=prices[0],profit=0;
+              for(int i=1;i<prices.size();i++){
+                  if(prices[i]<buy)
+                      buy=prices[i];
+                  else if(prices[i]-buy>profit)
+                      profit=prices[i]-buy;        
+              }
+              return profit;
+          }
   
 ### 4. Two Sum - HashMap
    - if target - present num is present in the hashmap , return {i,pairIdx[target-num]}
    - pairIdx[num]=i
    -
-     vector<int> twoSum(vector<int>& nums, int target) {
-        unordered_map<int,int> pairIdx;
-        for(int i=0;i<nums.size();i++){
-            int num=nums[i];
-            if(pairIdx.find(target-num)!=pairIdx.end()){
-                return {i,pairIdx[target-num]};
-            }
-            pairIdx[num]=i;
-        }
-        return {};
-    }
+           vector<int> twoSum(vector<int>& nums, int target) {
+              unordered_map<int,int> pairIdx;
+              for(int i=0;i<nums.size();i++){
+                  int num=nums[i];
+                  if(pairIdx.find(target-num)!=pairIdx.end()){
+                      return {i,pairIdx[target-num]};
+                  }
+                  pairIdx[num]=i;
+              }
+              return {};
+          }
   
 ### 5. Merge sorted array - two pointer method
   - intialise k=m+n-1
   - iterating from the end of both the arrays, find the largest ele from the end of both the arrays and initialise it to the end of array 1
   - 
-    void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
-        int i=m-1,j=n-1,k=m+n-1;
-        while(i>=0 && j>=0){
-            if(nums1[i]>nums2[j]){
-                nums1[k]=nums1[i];
-                k--;i--;
-            }else{
-                nums1[k]=nums2[j];
-                k--;j--;
-            }
-        }
-        while(j>=0){
-            nums1[k]=nums2[j];
-            k--;j--;
-        }
-    }
+          void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+              int i=m-1,j=n-1,k=m+n-1;
+              while(i>=0 && j>=0){
+                  if(nums1[i]>nums2[j]){
+                      nums1[k]=nums1[i];
+                      k--;i--;
+                  }else{
+                      nums1[k]=nums2[j];
+                      k--;j--;
+                  }
+              }
+              while(j>=0){
+                  nums1[k]=nums2[j];
+                  k--;j--;
+              }
+          }
   
 
 ## Day-2
@@ -96,40 +96,40 @@
    - count the freq of each element
    - if map.second is greater than n/2 return it
    - 
-      int majorityElement(vector<int>& nums) {
-           unordered_map<int, int> mp; 
-           int n = nums.size() / 2; 
-           for (auto a : nums) {
-               mp[a]++;
-           }
-           int ans = 0; 
-           for (auto a : mp) {
-               if (a.second > n) {
-                   ans = a.first; 
-               }
-           }
-           return ans;    
-      }
+            int majorityElement(vector<int>& nums) {
+                 unordered_map<int, int> mp; 
+                 int n = nums.size() / 2; 
+                 for (auto a : nums) {
+                     mp[a]++;
+                 }
+                 int ans = 0; 
+                 for (auto a : mp) {
+                     if (a.second > n) {
+                         ans = a.first; 
+                     }
+                 }
+                 return ans;    
+            }
   
 
 ### 2. Duplicate number - Slow and fast two pointer method
    - Traverse the array such that is slow pointer moves one step at a time while fast moves two steps at a time. This continues until slow and fast meet at the same position within the cycle.
    - After reinitialiszing slow at start, Again traverse the array such that slow and fast move one step at a time. They continue moving until they meet again at the start of the cycle as the distance between slow and fast is decreasing by one in each iteration.
    - 
-     int findDuplicate(vector<int>& nums) {
-        int slow=nums[0];
-        int fast=nums[0];
-        do{
-            slow=nums[slow];
-            fast=nums[nums[fast]];
-        }while(slow!=fast);
-        slow=nums[0];
-        while(slow!=fast){
-            slow=nums[slow];
-            fast=nums[fast];
-        }
-        return slow;
-    }
+           int findDuplicate(vector<int>& nums) {
+              int slow=nums[0];
+              int fast=nums[0];
+              do{
+                  slow=nums[slow];
+                  fast=nums[nums[fast]];
+              }while(slow!=fast);
+              slow=nums[0];
+              while(slow!=fast){
+                  slow=nums[slow];
+                  fast=nums[fast];
+              }
+              return slow;
+          }
 
 
 ### 3. Sorting colors - 3 pointers until mid crosses high
@@ -137,57 +137,56 @@
    - If nums[mid] is 1 (white), leave it in place and increment mid.
    - If nums[mid] is 2 (blue), swap it with nums[high], decrement right.
    - 
-     void sortColors(vector<int>& nums) {
-        int low=0,high=nums.size()-1,mid=0;
-        while(mid<=high){
-            if(nums[mid]==0){
-                swap(nums[low],nums[mid]);
-                low++;
-                mid++;
-            }else if(nums[mid]==1){
-                mid++;
-            }else{
-                swap(nums[mid],nums[high]);
-                high--;
-            }
-        }
-    }
+           void sortColors(vector<int>& nums) {
+              int low=0,high=nums.size()-1,mid=0;
+              while(mid<=high){
+                  if(nums[mid]==0){
+                      swap(nums[low],nums[mid]);
+                      low++;
+                      mid++;
+                  }else if(nums[mid]==1){
+                      mid++;
+                  }else{
+                      swap(nums[mid],nums[high]);
+                      high--;
+                  }
+              }
+          }
   
 
 ### 4. Buy and Sell the stock part 2 - Greedy algorithm
    - iterate from index 1 and check if the current price is greater than the profit price then add the difference to the max.
    - Regardless of whether a profit was made or not, the start is updated to the current price (prices[i]). This step prepares for the next iteration, considering the current day's price as the new buying price.
    - 
-     int maxProfit(vector<int>& prices) {
-        int max=0;
-        int start=prices[0];
-        for(int i=1;i<prices.size();i++){
-            if(start<prices[i]){
-                max+=prices[i]-start;
-            }
-            start=prices[i];
-        }
-        return max;
-    }
+           int maxProfit(vector<int>& prices) {
+              int max=0;
+              int start=prices[0];
+              for(int i=1;i<prices.size();i++){
+                  if(start<prices[i]){
+                      max+=prices[i]-start;
+                  }
+                  start=prices[i];
+              }
+              return max;
+          }
 
 ### 5. Find All the duplicates - Hashmap
    - doing -1 because length = n => index from 0 to n-1  and range of numbers = [1,n]
    - if value at the index is negative => already visited
    - if its not negative we mark it as negative as visited
    - 
-     vector<int> findDuplicates(vector<int>& nums) {
-        vector<int> ans;
-        for(int i=0;i<nums.size();i++){
-            int k=abs(nums[i])-1;
-            if(nums[k]<0){
-                ans.push_back(abs(nums[i]));
-            }else{
-                nums[k]*=-1;
-            }
-        }
-        return ans;
-
-    }
+           vector<int> findDuplicates(vector<int>& nums) {
+              vector<int> ans;
+              for(int i=0;i<nums.size();i++){
+                  int k=abs(nums[i])-1;
+                  if(nums[k]<0){
+                      ans.push_back(abs(nums[i]));
+                  }else{
+                      nums[k]*=-1;
+                  }
+              }
+              return ans;
+          }
 
 
 ## Day-3
@@ -506,4 +505,163 @@
                      maxReach = max(maxReach, i + nums[i]);
                  }
                  return maxReach >= n - 1;
+             }
+
+
+
+## Day - 5 
+
+### 1. All unique permutations of an array - backtracking , recursion
+   - Skip if the element is already used.
+   - Skip if the element is a duplicate of the previous element and the previous element has not been used.
+   - Mark the element as used, add it to the current permutation, and recursively call the backtracking function.
+   - After the recursive call, remove the element from the current permutation and mark it as not used (backtrack).
+   -
+           void backtrack(vector<int> &arr, vector<bool> &used, vector<int> current,vector<vector<int>> &result){
+              if(current.size()==arr.size()){
+                  result.push_back(current);
+                  return;
+              }
+              for(int i=0;i<arr.size();i++){
+                  if(used[i])
+                      continue;
+                  if(i>0 && arr[i]==arr[i-1] && !used[i-1])
+                      continue;
+                  used[i]=true;
+                  current.push_back(arr[i]);
+                  backtrack(arr,used,current,result);
+                  current.pop_back();
+                  used[i]=false;
+              }
+          }
+          vector<vector<int>> uniquePerms(vector<int> &arr ,int n) {
+              sort(arr.begin(),arr.end());
+              vector<vector<int>> result;
+              vector<int> current;
+              vector<bool> used(n,false);
+              backtrack(arr,used,current,result);
+              return result;
+          }
+
+
+### 2. Game of Live - Stimulation
+   -
+           void gameOfLife(vector<vector<int>>& board) {
+              int n=board.size();
+              int m=board[0].size();
+              for(int a=0;a<n;a++){
+                  for(int b=0;b<m;b++){
+                      int count=0;
+                      for(int c=a-1;c<=a+1;c++){
+                          for(int d=b-1;d<=b+1;d++){
+                              if(a==c && b==d) 
+                                  continue;
+                              if(c>=0 && c<n && d>=0 && d<m && (board[c][d]==1 || board[c][d]==3)){
+                                  count++;
+                              }
+                          }
+                      }
+                      if(board[a][b]==1 && (count<2 ||count>3)){
+                          board[a][b]=3;
+                      }
+                      if(board[a][b]==0 && count==3){
+                          board[a][b]=2;
+                      }
+                  }
+              }
+              for(int a=0;a<n;++a){
+                  for(int b=0;b<m;++b){
+                      if(board[a][b]==3){
+                          board[a][b]=0;
+                      }
+                      if(board[a][b]==2){
+                          board[a][b]=1;
+                      }
+                  }
+              }
+          }
+
+
+### 3. Max Value of a equation - Max-heap or priority queue
+   - The condition |xi - xj| <= k is maintained by the priority queue to ensure that only valid points are considered.
+   - The priority queue helps in keeping track of the maximum (yi - xi) value efficiently.
+   - The algorithm ensures that we only consider valid pairs of points and update the result accordingly.
+   - 
+           int findMaxValueOfEquation(vector<vector<int>>& v, int k) {
+              priority_queue<vector<int>> pq;
+              pq.push({v[0][1]-v[0][0],v[0][0]});
+              int ans = INT_MIN,sum;
+              for(int i = 1; i < v.size(); i++){
+                  sum = v[i][0]+v[i][1];
+                  while(!pq.empty() && v[i][0]-pq.top()[1]>k)
+                      pq.pop();
+                  if(!pq.empty()){
+                      ans = max(ans,sum+pq.top()[0]);
+                  }
+                  pq.push({v[i][1]-v[i][0],v[i][0]});
+              }
+              return ans;
+          }
+
+### 4. Insert Delete Random O(1) - Hash table
+   - bool insert(int val) Inserts an item val into the multiset, even if the item is already present. Returns true if the item is not present, false otherwise.
+   - bool remove(int val) Removes an item val from the multiset if present. Returns true if the item is present, false otherwise. Note that if val has multiple occurrences in the multiset, we only remove one of them.
+   - int getRandom() Returns a random element from the current multiset of elements.
+   -
+              class RandomizedCollection {
+         public:
+             vector<int> nums;
+             unordered_map<int,unordered_set<int>> numLocations;
+             RandomizedCollection() {
+             }
+             bool insert(int val) {
+                 bool result=true;
+                 if(numLocations.contains(val))
+                     result=false;
+                 nums.push_back(val);
+                 numLocations[val].insert(nums.size()-1);
+                 return result;    
+             }
+             bool remove(int val) {
+                 if(!numLocations.contains(val))
+                     return false;
+                 int replaceIndex=*numLocations[val].begin();
+                 numLocations[val].erase(replaceIndex);
+                 if(numLocations[val].empty())
+                     numLocations.erase(val);  
+                 int lastValue=nums.back();
+                 int lastIndex=nums.size()-1;
+                 if(replaceIndex!=lastIndex){
+                     swap(nums[replaceIndex],nums[lastIndex]);
+                     numLocations[lastValue].erase(lastIndex);
+                     numLocations[lastValue].insert(replaceIndex);
+                 }
+                 nums.pop_back();
+                 return true;      
+             }
+             int getRandom() {
+                 return nums[rand()%nums.size()];
+             }
+         };
+
+### 5. Largest Rectangle in the histogram - Monotonic Stack
+   - Each element in the stack is a pair (start, height) where start is the index where the height starts, and height is the height of the bar.
+   - Append a zero to heights to ensure that all bars are popped from the stack by the end of the iteration.
+   - By maintaining the stack in a way that ensures we only pop when we find a shorter bar, it allows us to calculate the maximum possible area for each height while keeping track of the starting index.
+   - 
+              int largestRectangleArea(vector<int>& heights) {
+                 stack<pair<int,int>> st;
+                 heights.push_back(0);
+                 int maxArea=0;
+                 for(int i=0;i<heights.size();i++){
+                     int start=i;
+                     while(!st.empty() && st.top().second >heights[i]){
+                         auto[idx,height]=st.top();
+                         st.pop();
+                         maxArea=max(maxArea,height*(i-idx));
+                         start=idx;
+                     }
+                     st.push({start,heights[i]});
+                 }
+                 return maxArea;
              }
