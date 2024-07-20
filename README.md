@@ -665,3 +665,131 @@
                  }
                  return maxArea;
              }
+
+
+## Day-6
+
+### 1. Valid Paranthesis - Stack
+   - f the current character is an opening bracket (i.e., '(', '{', '['), push it onto the stack.
+   -If the current character is a closing bracket (i.e., ')', '}', ']'), check if the stack is empty. If it is empty, return false, because the closing bracket does not have a corresponding opening bracket. Otherwise, pop the top element from the stack and check if it matches the current closing bracket. If it does not match, return false, because the brackets are not valid.
+
+   -
+           bool isValid(string s) {
+              stack<char> st;
+              for(char c:s){
+                  if(c=='(' || c=='{' || c=='[')
+                  {
+                      st.push(c);
+                  }else{
+                      if(st.empty() ||
+                        (c==')' && st.top()!='(') ||
+                        (c==']' && st.top()!='[') ||
+                        (c=='}' && st.top()!='{')){
+                          return false;
+                      }
+                      st.pop();
+                  }
+              }
+              return st.empty();
+          }
+
+### 2. Print all the Duplicate characters in the string - Hashing
+   -
+           void printDups(string str)
+            {
+                unordered_map<char, int> count;
+                for (int i = 0; i < str.length(); i++) {
+                    count[str[i]]++;
+                }
+                for (auto it : count) {
+                    if (it.second > 1)
+                        cout << it.first << ", count = " << it.second
+                             << "\n";
+                }
+            }
+
+### 3. Find first index of needle in the haystack - two pointers
+   - If the current characters in haystack and needle match (haystack[fir] == needle[sec])
+   - Check if sec is at the last character of needle (sec == nNeedle - 1). If true, return the starting index of the match (fir - sec)
+   - If characters do not match after the comparison (either directly or after an increment), adjust the fir pointer. Move fir back to the next character after the start of the current match attempt (fir = (fir - sec) + 1). Reset sec to 0 to start matching needle from the beginning
+   -
+           int strStr(string haystack, string needle) {
+              int fir=0,sec=0;
+              int nstack=haystack.size(),nNeedle=needle.size();
+              while(fir<nstack){
+                  if(haystack[fir]==needle[sec]){
+                      if(sec==nNeedle-1){
+                          return fir-sec;
+                      }
+                      sec++;
+                  }
+                  fir++;
+                  if(haystack[fir]!=needle[sec]){
+                      fir=(fir-sec)+1;
+                      sec=0;
+                  }
+              }
+              return -1;
+          }
+          
+
+### 4. Find first index of needle in the haystack - two pointers and greedy
+   - if its the first time they didn't match, delete any one of them left and right and see if it comes palindrome
+   -
+           bool palin(string s,int i,int j){
+              while(j>=i){
+                  if(s[i]!=s[j]){
+                      return false;
+                  }else{
+                      i++;
+                      j--;
+                  }
+              }
+              return true;
+          }
+          bool validPalindrome(string s) {
+              int i=0;
+              int j=s.length()-1;
+              while(j>=i){
+                  if(s[i]!=s[j]){
+                      return palin(s,i+1,j) || palin(s,i,j-1);
+                  }else{
+                      i++;
+                      j--;
+                  }
+              }
+              return true;
+          }
+
+### 5. Integer to Roman - Hash Table
+   -
+           string intToRoman(int num) {
+              string ones[] = {"","I","II","III","IV","V","VI","VII","VIII","IX"};
+              string tens[] = {"","X","XX","XXX","XL","L","LX","LXX","LXXX","XC"};
+              string hrns[] = {"","C","CC","CCC","CD","D","DC","DCC","DCCC","CM"};
+              string ths[]={"","M","MM","MMM"};
+              return ths[num/1000]+hrns[(num%1000)/100]+tens[(num%100)/10]+ones[num%10];
+          }
+
+### 6. Generate Paranthesis - Recursion
+   -
+           void solve(int total,int open,int close,string s,vector<string> &ans){
+              if(s.size()==total){
+                  ans.push_back(s);
+                  return;
+              }
+              if(open>close){
+                  solve(total,open,close+1,s+')',ans);
+                  if(open<total/2){
+                      solve(total,open+1,close,s+'(',ans);
+                  }
+              }else{
+                  solve(total,open+1,close,s+'(',ans);
+              }
+          }
+          vector<string> generateParenthesis(int n) {
+              vector<string> ans;
+              solve(n*2,0,0,"",ans);
+              return ans;
+          }      
+   
