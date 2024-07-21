@@ -733,7 +733,7 @@
           }
           
 
-### 4. Find first index of needle in the haystack - two pointers and greedy
+### 4. Check if a string is palindrome with maximum one replacement possible - two pointers and greedy
    - if its the first time they didn't match, delete any one of them left and right and see if it comes palindrome
    -
            bool palin(string s,int i,int j){
@@ -793,3 +793,149 @@
               return ans;
           }      
    
+
+
+## Day-7
+
+### 1. Simplify Path - Stack
+   - Whenever we encounter any file’s name, we simply push it into the stack.
+   - when we come across ” . ” we do nothing
+   - When we find “..” in our path, we simply pop the topmost element as we have to jump back to parent’s directory
+   -
+           string simplifyPath(string path) {
+              stack<string> st;
+              string res;
+              for(int i=0;i<path.size();i++){
+                  if(path[i]=='/')
+                      continue;
+                  string temp;
+                  while(i<path.size() && path[i]!='/'){
+                      temp+=path[i];
+                      ++i;
+                  }
+                  if(temp==".")
+                      continue;
+                  else if(temp==".."){
+                      if(!st.empty())
+                          st.pop();
+                  }else{
+                      st.push(temp);
+                  }        
+              }
+              while(!st.empty()){
+                  res="/"+st.top()+res;
+                  st.pop();
+              }
+              if(res.size()==0)
+                  return "/";
+              else
+                  return res;    
+          }
+
+### 2. Smallest window in a string containing all the characters of another string - Stack
+   - Expand the Window: Move the right pointer to expand the window.Decrease counter if the current character is in t.Decrease the count of the current character in the map.
+   - Shrink the Window:If counter is 0 (valid window), move the left pointer to shrink the window.Update minStart and minLength if a smaller window is found.Increase the count of the current character in the map and counter if the character is in t.
+   -
+           string minWindow(string s, string t) {
+              unordered_map<char, int> m;
+              for (int i = 0; i < t.size(); i++) {
+                  m[t[i]]++;
+              }
+              int left = 0;
+              int right = 0;
+              int counter = t.size();
+              int minStart = 0;
+              int minLength = INT_MAX;
+              while (right < s.size()) {
+                  if (m[s[right]] > 0) {
+                      counter--;
+                  }
+                  m[s[right]]--;
+                  right++;
+                  while (counter == 0) {
+                      if (right - left < minLength) {
+                          minStart = left;
+                          minLength = right - left;
+                      }
+                      m[s[left]]++;
+                      if (m[s[left]] > 0) {
+                          counter++;
+                      }
+                      left++;
+                  }
+              }
+              if (minLength != INT_MAX) {
+                  return s.substr(minStart, minLength);
+              }
+              return "";
+          }
+
+### 3. Reverse words in a String - two pointers
+   - Identify Word Boundaries: Traverse the input string to identify the start and end positions of each word. Skip over any spaces to locate the beginning of a word. Move through the characters until a space is encountered to mark the end of the word. Store the start and end indices of each word in a vector.
+   - Reverse the Order of Words: Iterate over the stored word positions in reverse order to reconstruct the final string. For each word, extract the substring using the stored indices and append it to the result string. Ensure that words are concatenated with a single space in between.
+   - Return the Result: The final string, built by appending the words in reverse order, is returned as the output.
+   -
+           vector<pair<int,int>> wordPositions;
+              int i=0;
+              while(i<length){
+                  while(i<length && s[i]==' ')
+                      i++;
+                  if(i==length)
+                      break;
+                  int start=i;
+                  while(i<length && s[i]!=' ')
+                      i++;
+                  int end=i-1;
+                  wordPositions.push_back({start,end});    
+              }
+              string result="";
+              for(int j=wordPositions.size()-1;j>=0;j--){
+                  string word=s.substr(wordPositions[j].first,wordPositions[j].second -wordPositions[j].first+1);
+                  result+=word;
+                  if(j!=0) 
+                      result+=" ";
+              }
+              return result;
+          } 
+
+
+### 4. Pattern Search - Rabin Karp Algorithm
+   - Rabin Karp algorithm matches the hash value of the pattern with the hash value of the current substring of text, and if the hash values match then only it starts matching individual characters.
+   - The hash value is calculated using a rolling hash function, which allows you to update the hash value for a new substring by efficiently removing the contribution of the old character and adding the contribution of the new character. This makes it possible to slide the pattern over the text and calculate the hash value for each substring without recalculating the entire hash from scratch.
+   - Choose a suitable base and a modulus: Select a prime number ‘p‘ as the modulus. This choice helps avoid overflow issues and ensures a good distribution of hash values. Choose a base ‘b‘ (usually a prime number as well), which is often the size of the character set (e.g., 256 for ASCII characters)
+   - each character ‘c’ at position ‘i’, calculate its contribution to the hash value as ‘c * (bpattern_length – i – 1) % p’ and add it to ‘hash‘. This gives you the hash value for the entire pattern.
+   - Slide the pattern over the text: Start by calculating the hash value for the first substring of the text that is the same length as the pattern
+   -
+            void search(char pat[], char txt[], int q)
+            {
+                int M = strlen(pat);
+                int N = strlen(txt);
+                int i, j;
+                int p = 0;
+                int t = 0;
+                int h = 1;
+                // The value of h would be "pow(d, M-1)%q"
+                for (i = 0; i < M - 1; i++)
+                    h = (h * d) % q;
+                for (i = 0; i < M; i++) {
+                    p = (d * p + pat[i]) % q;
+                    t = (d * t + txt[i]) % q;
+                }
+                for (i = 0; i <= N - M; i++) {
+                    if (p == t) {
+                        for (j = 0; j < M; j++) {
+                            if (txt[i + j] != pat[j]) {
+                                break;
+                            }
+                        }
+                        if (j == M)
+                            cout << "Pattern found at index " << i
+                                 << endl;
+                    }
+                    if (i < N - M) {
+                        t = (d * (t - txt[i] * h) + txt[i + M]) % q;
+                        if (t < 0)
+                            t = (t + q);
+                    }
+                }
+            }
