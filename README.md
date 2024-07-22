@@ -939,3 +939,247 @@
                     }
                 }
             }
+
+
+## Day-8
+
+### 1. Group Anagrams - Hash Table
+   - After sorting a group of anagrams, their sorted words will be the same
+   - So we can group the anagrams using their sorted words as the key of a hash map
+   -
+           vector<vector<string>> groupAnagrams(vector<string>& strs) {
+              unordered_map<string,vector<string>> mp;
+              for(auto s:strs){
+                  string word=s;
+                  sort(word.begin(),word.end());
+                  mp[word].push_back(s);
+              }
+              vector<vector<string>> ans;
+              for(auto x:mp){
+                  ans.push_back(x.second);
+              }
+              return ans;
+          }
+
+### 2. Word Wrap - Dynammic programming
+   -   Declare variables n as the length of the nums array, and i, j for iteration.
+       Initialize variables currlen to store the number of characters in the current line, and cost to store the possible minimum cost of the line.
+       Create dynamic programming (DP) table dp of size n to represent the cost of lines starting with each word.
+       Create an array ans to store the index of the last word in each line.
+       Base Case:
+           Set dp[n - 1] to 0 since the last line has no extra cost, and ans[n - 1] to n - 1 as it is the last word.
+       Iterate from i = n - 2 to 0 (backwards) to fill the DP table.
+       For each word at index i, try adding words from j = i to n-1 to the current line.
+       Calculate the currlen by adding the length of words and spaces.
+       If the limit k is violated, break the loop.
+       Calculate the cost of the line and update dp[i] and ans[i] if the current arrangement minimizes the cost.
+       Initialize res to 0 and iterate through the ans array to calculate the total cost.
+       For each line, sum the lengths of the words and calculate the extra spaces (pos).
+       Add the square of extra spaces to the total cost.
+   -
+          int solveWordWrap(vector<int>nums, int k) 
+          { 
+              int n = nums.size();
+              int i, j;
+              int currlen;
+              int cost;
+              vector<int>dp(n, 0);
+              vector<int>ans(n, 0);
+              dp[n - 1] = 0;
+              ans[n - 1] = n - 1;
+              for (i = n - 2; i >= 0; i--)
+              {
+                  currlen = -1;
+                  dp[i] = INT_MAX;
+                  for (j = i; j < n; j++)
+                  {
+                      currlen += (nums[j] + 1);
+                      if (currlen > k)
+                          break;
+                      if (j == n - 1)
+                          cost = 0;
+                      else
+                          cost = (k - currlen) * (k - currlen) + dp[j + 1];
+                      if (cost < dp[i]) {
+                          dp[i] = cost;
+                          ans[i] = j;
+                      }
+                  }
+              }
+              int res = 0;
+              i = 0;
+              while (i < n) {
+                  int pos = 0;
+                  for (int j = i; j < ans[i] + 1; j++) {
+                      pos += nums[j];
+                  }
+                  int x = ans[i]-i;
+                  if(ans[i]+1 != nums.size())
+                      res += (k - x - pos)*(k - x - pos);
+                  i = ans[i] + 1;
+              }
+              return res;
+          } 
+
+
+### 3. Basic Calculator - Stack
+   - To begin with, we add '+' to the s=input string
+   - if we encounter a digit/num (The string might also contain more than 1 digit numbers, so until we find any operator, we'll keep on forming the multi digit number (num = num*10 + s[i] ) ).
+   - At the end, we encounter another '+' sign, this is to push the last curr value into the stack
+   -
+              int calculate(string s) {
+                 s+='+';
+                 stack<int> st;
+                 long long int ans=0,curr=0;
+                 char sign='+';
+                 for(int i=0;i<s.size();i++){
+                     if(isdigit(s[i]))
+                         curr=curr*10+(s[i]-'0');
+                     else if(s[i]=='+' || s[i]=='-' || s[i]=='*' || s[i]=='/'){
+                         if(sign=='+')
+                             st.push(curr);
+                         else if(sign=='-')
+                             st.push(-1*curr);
+                         else if(sign=='*'){
+                             int num=st.top();st.pop();
+                             st.push(curr*num);
+                         }else if(sign=='/'){
+                             int num=st.top();st.pop();
+                             st.push(num/curr);
+                         }
+                         curr=0;
+                         sign=s[i];        
+                     }
+                 }
+                 while(st.size()){
+                     ans+=st.top();
+                     st.pop();
+                 }
+                 return ans;
+             }
+
+### 4. Valid Number - String Finite State Machine
+   -  Initializes the state to START.
+      Iterates through each character of the input string s.
+      Uses the parse function to get the Token for the current character.
+      Uses the transition table to determine the next state based on the current state and Token.
+      If the state transitions to FAIL, the function returns false indicating the string is not a valid number.
+      After processing all characters, returns true if the final state is a valid accepting state (a state less than START).
+   -
+              class Solution {
+         public:
+             enum State {
+                 EXPONENT,
+                 DECIMAL,
+                 INTEGER,
+                 START,
+                 EMPTY_INTEGER,
+                 EMPTY_DECIMAL,
+                 EXPONENT_START,
+                 EMPTY_EXPONENT,
+                 FAIL,
+             };
+             enum Token {
+                 SIGN,
+                 DIGIT,
+                 DOT,
+                 EXP,
+                 OTHER,
+             };
+             State transition[FAIL][OTHER] = {
+                 /* EXPONENT */       {FAIL, EXPONENT, FAIL, FAIL},
+                 /* DECIMAL */        {FAIL, DECIMAL, FAIL, EXPONENT_START},
+                 /* INTEGER */        {FAIL, INTEGER, DECIMAL, EXPONENT_START},
+                 /* START */          {EMPTY_INTEGER, INTEGER, EMPTY_DECIMAL, FAIL},
+                 /* EMPTY_INTEGER */  {FAIL, INTEGER, EMPTY_DECIMAL, FAIL},
+                 /* EMPTY_DECIMAL */  {FAIL, DECIMAL, FAIL, FAIL},
+                 /* EXPONENT_START */ {EMPTY_EXPONENT, EXPONENT, FAIL, FAIL},
+                 /* EMPTY_EXPONENT */ {FAIL, EXPONENT, FAIL, FAIL},
+             };
+             Token parse(char c) {
+                 switch (c) {
+                     case '+':
+                     case '-': return SIGN;
+                     case '.': return DOT;
+                     case '0':
+                     case '1':
+                     case '2':
+                     case '3':
+                     case '4':
+                     case '5':
+                     case '6':
+                     case '7':
+                     case '8':
+                     case '9': return DIGIT;
+                     case 'e':
+                     case 'E': return EXP;
+                     default: return OTHER;
+                 }
+             }
+             bool isNumber(string s) {
+                 State state=START;
+                 for(const char c:s){
+                     const Token ch=parse(c);
+                     if(ch==OTHER){
+                         return false;
+                     }
+                     state=transition[state][ch];
+                     if(state==FAIL){
+                         return false;
+                     }
+                 }
+                 return (state<START);
+             }
+         };
+
+   -
+      bool num = false, exp = false, sign = false, dec = false;
+           for (auto c : S)
+               if (c >= '0' && c <= '9') num = true ;    
+               else if (c == 'e' || c == 'E')
+                   if (exp || !num) return false;
+                   else exp = true, sign = false, num = false, dec = false;
+               else if (c == '+' || c == '-')
+                   if (sign || num || dec) return false;
+                   else sign = true;
+               else if (c == '.')
+                   if (dec || exp) return false;
+                   else dec = true;
+               else return false;
+           return num;
+
+
+### 5. Integer to English words - Recursion
+   - Calculate the Quotient: If value is 100 or more, the function recursively calls numberToWords(num / value) to convert the quotient to words. This handles the part before the current value (e.g., the "One" in "One Thousand").
+   - Append the Current Word: The current word corresponding to value is appended to the result.
+   - Calculate the Remainder: If there's a remainder (i.e., num % value is not zero), the function recursively calls numberToWords(num % value) to convert the remainder to words and appends it to the result.
+   -
+              vector<pair<int, string>> mp = {
+                 {1000000000, "Billion"},{1000000, "Million"},{1000, "Thousand"},{100, "Hundred"},
+                 {90, "Ninety"},{80, "Eighty"},{70, "Seventy"},{60, "Sixty"},{50, "Fifty"},
+                 {40, "Forty"},{30, "Thirty"},{20, "Twenty"},{19, "Nineteen"},{18, "Eighteen"},
+                 {17, "Seventeen"},{16, "Sixteen"},{15, "Fifteen"},{14, "Fourteen"},
+                 {13, "Thirteen"},{12, "Twelve"},{11, "Eleven"},{10, "Ten"},{9, "Nine"},
+                 {8, "Eight"},{7, "Seven"},{6, "Six"},{5, "Five"},{4, "Four"},{3, "Three"},
+                 {2, "Two"},{1, "One"}
+             };
+             string numberToWords(int num) {
+                 if(num==0)
+                     return "Zero";
+                 for(auto i:mp){
+                     if(num>=i.first){
+                         string a="";
+                         if(num>=100){
+                             a=numberToWords(num/i.first)+" ";
+                         }
+                         string b=i.second;
+                         string c="";
+                         if(num%i.first!=0){
+                             c=" "+numberToWords(num%i.first);
+                         }
+                         return a+b+c;
+                     }
+                 }
+                 return "";    
+             }
+         
