@@ -1182,4 +1182,151 @@
                  }
                  return "";    
              }
-         
+
+
+
+## Day-9
+
+### 1. Text Justification - String stimulation
+   - Justify the current line:
+    Calculate totalSpaces and spacesBetweenWords.
+    If spacesBetweenWords is 0, left-justify the single word.
+    Distribute spaces evenly among words.
+    Append justified line to result.
+
+   - Add the word to the current line:
+    Add the current word to currentLine.
+    Update currentLineLength.
+
+   - Left-justify the last line:
+    Concatenate words in currentLine with a single space between them.
+    Pad the end with spaces to reach maxWidth.
+    Add the last line to result
+   -
+           vector<string> fullJustify(vector<string>& words, int maxWidth) {
+           vector<string> result;
+           vector<string> currentLine;
+           int currentLineLength = 0;
+           for (const string& word : words) {
+               if (currentLineLength + word.length() + currentLine.size() > maxWidth) {
+                   int totalSpaces = maxWidth - currentLineLength;
+                   int spacesBetweenWords = currentLine.size() - 1;
+                   if (spacesBetweenWords == 0) {
+                       result.push_back(currentLine[0] + string(totalSpaces, ' '));
+                   } else {
+                       int spacesPerSlot = totalSpaces / spacesBetweenWords;
+                       int extraSpaces = totalSpaces % spacesBetweenWords;
+                       string line;
+                       for (int i = 0; i < currentLine.size(); ++i) {
+                           line += currentLine[i];
+                           if (i < spacesBetweenWords) {
+                               line += string(spacesPerSlot + (i < extraSpaces ? 1 : 0), ' ');
+                           }
+                       }
+                       result.push_back(line);
+                   }
+                   currentLine.clear();
+                   currentLineLength = 0;
+               }
+               currentLine.push_back(word);
+               currentLineLength += word.length();
+           }
+           string lastLine;
+           for (int i = 0; i < currentLine.size(); ++i) {
+               lastLine += currentLine[i];
+               if (i < currentLine.size() - 1) {
+                   lastLine += " ";
+               }
+           }
+           lastLine += string(maxWidth - lastLine.length(), ' ');
+           result.push_back(lastLine);
+           return result;
+       }
+
+### 2. Boyer Moore Algorithm for Pattern Searching
+   - Mismatch become match : We will lookup the position of the last occurrence of the mismatched character in the pattern, and if the mismatched character exists in the pattern, then we’ll shift the pattern such that it becomes aligned to the mismatched character in the text T.
+   - 
+            #include <bits/stdc++.h>
+            using namespace std;
+            #define NO_OF_CHARS 256
+            // The preprocessing function for Boyer Moore's bad character heuristic
+            void badCharHeuristic(string str, int size,int badchar[NO_OF_CHARS])
+            {
+            	int i;
+            	// Initialize all occurrences as -1
+            	for (i = 0; i < NO_OF_CHARS; i++)
+            		badchar[i] = -1;
+            	// Fill the actual value of last occurrence
+            	// of a character
+            	for (i = 0; i < size; i++)
+            		badchar[(int)str[i]] = i;
+            }
+            /* A pattern searching function that uses BadCharacter Heuristic of Boyer Moore Algorithm */
+            void search(string txt, string pat)
+            {
+            	int m = pat.size();
+            	int n = txt.size();
+            	int badchar[NO_OF_CHARS];
+            	/* Fill the bad character array by calling the preprocessing function badCharHeuristic() for given pattern */
+            	badCharHeuristic(pat, m, badchar);
+            	int s = 0; // s is shift of the pattern withrespect to text
+            	while (s <= (n - m)) {
+            		int j = m - 1;
+            		/* Keep reducing index j of pattern whilecharacters of pattern and text arematching at this shift s */
+            		while (j >= 0 && pat[j] == txt[s + j])
+            			j--;
+            		/* If the pattern is present at currentshift, then index j will become -1 afterthe above loop */
+            		if (j < 0) {
+            			cout << "pattern occurs at shift = " << s<< endl;
+            			/* Shift the pattern so that the nextcharacter in text aligns with the lastoccurrence of it in pattern.The condition s+m < n is necessary forthe case when pattern occurs at the endof text */
+            			s += (s + m < n) ? m - badchar[txt[s + m]] : 1;
+            		}
+            		else
+            			/* Shift the pattern so that the bad characterin text aligns with the last occurrence ofit in pattern. The max function is used to make sure that we get a positive shift. We may get a negative shift if the last occurrence of bad character in pattern is on the right side of the current character. */
+            			s += max(1, j - badchar[txt[s + j]]);
+            	}
+            }
+
+### 3. Distinct sequences - Dynammic programming
+   - dp is a 2D vector (table) of size (m+1) x (n+1) initialized to 0. This table will be used to store the number of distinct subsequences of substrings of s that match substrings of t
+   - If t is an empty string, there is exactly one subsequence of any substring of s that matches it: the empty subsequence. Thus, dp[i][0] = 1 for all i.
+   - If s is an empty string and t is non-empty, there are no subsequences of s that match t. Thus, dp[0][j] = 0 for all j > 0
+   - We use this character in s to match the character in t, so we add the number of ways to match the previous characters (dp[i - 1][j - 1]).
+   - We do not use this character in s, so we add the number of ways to match t with the previous characters in s (dp[i - 1][j])
+   -
+          int numDistinct(string s, string t) {
+              int m=s.size(),n=t.size();
+              vector<vector<double>> dp(m+1,vector<double>(n+1,0));
+              for(int i=0;i<=m;i++)
+                  dp[i][0]=1;
+              for(int j=1;j<=n;j++)
+                  dp[0][j]=0;
+              for(int i=1;i<=m;i++){
+                  for(int j=1;j<=n;j++){
+                      if(s[i-1]==t[j-1]){
+                          dp[i][j]=dp[i-1][j-1]+dp[i-1][j];
+                      }else{
+                          dp[i][j]=dp[i-1][j];
+                      }
+                  }
+              }
+              return (int) dp[m][n];        
+          }
+
+### 4. Print Anagrams together - Hash
+   -
+           vector<vector<string> > Anagrams(vector<string>& string_list) {
+              vector<vector<string>> result;
+              unordered_map<string,vector<string>> mp;
+              for(string s:string_list){
+                  string s2=s;
+                  sort(s.begin(),s.end());
+                  mp[s].push_back(s2);
+              }
+              for( auto itr=mp.begin();itr!=mp.end();itr++){
+                  result.push_back(itr->second);
+              }
+              return result;
+          }
+
+
