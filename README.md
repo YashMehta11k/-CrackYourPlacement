@@ -1330,3 +1330,232 @@
           }
 
 
+## Day-10
+### Aptitude preparation
+  - Logical reasoning
+  - Patterns
+  - Data interpretation
+  - C++
+
+    
+
+## Day-11
+
+### 1. Minimum moves to equal array elements - Array Sorting
+   -
+              int minMoves2(vector<int>& nums) {
+                 sort(nums.begin(),nums.end());
+                 int n=nums.size(),mid=n/2,ans=0;
+                 int dif=nums[mid];
+                 for(int i=0;i<n;i++){
+                     ans+=abs(dif-nums[i]);
+                 }
+                 return ans;
+             }
+
+### 2. Add binary - Bit manupilation
+   -
+              string addBinary(string a, string b) {
+                 string bit,ans;
+                 int carry=0,i=a.length()-1,j=b.length()-1;
+                 while(i>=0 || j>=0 || carry){
+                     if(i>=0)
+                         carry+=a[i--]-'0';
+                     if(j>=0)
+                         carry+=b[j--]-'0';
+                     bit=carry%2+'0';
+                     ans=bit+ans;
+                     carry/=2;    
+                 }
+                 return ans;
+             }
+
+### 3. Maximum product of three numbers - Array and negatives case handling
+   -
+              int maximumProduct(vector<int>& nums) {
+                 int max1=INT_MIN,max2=INT_MIN,max3=INT_MIN;
+                 int min1=INT_MAX,min2=INT_MAX;
+                 for(int num:nums){
+                     if(num>max1){
+                         max3=max2;
+                         max2=max1;
+                         max1=num;
+                     }else if(num>max2){
+                         max3=max2;
+                         max2=num;
+                     }else if(num>max3){
+                         max3=num;
+                     }
+                     if(num<min1){
+                         min2=min1;
+                         min1=num;
+                     }else if(num<min2){
+                         min2=num;
+                     }
+                 }
+                 return max(max1*max2*max3,min1*min2*max1);
+             }
+
+### 4. Excel sheet column title - String Math
+   -
+              string convertToTitle(int columnNumber) {
+                 string str="";
+                 while(columnNumber>0){
+                     char ch=char((columnNumber-1)%26+65);
+                     str=ch+str;
+                     columnNumber=(columnNumber-1)/26;
+                 }
+                 return str;
+             }
+
+### 5. Product Array Puzzle - Math
+   -
+              vector<long long int> productExceptSelf(vector<long long int>& nums, int n) {
+                vector<long long int> result(n, 1);
+                 long long int leftProduct = 1;
+                 for (int i = 0; i < n; ++i) {
+                     result[i] = leftProduct;
+                     leftProduct *= nums[i];
+                 }
+                 long long int rightProduct = 1;
+                 for (int i = n - 1; i >= 0; --i) {
+                     result[i] *= rightProduct;
+                     rightProduct *= nums[i];
+                 }
+                 return result;
+             }
+
+### 6. Maximum size rectangle binary sub-matrix with all 1s - Matrix Histogram
+   - If the height of bars of the histogram is given then the largest area of the histogram can be found. This way in each row, the largest area of bars of the histogram can be found. To get the largest rectangle full of 1’s, update the next row with the previous row and find the largest area under the histogram, i.e. consider each 1’s as filled squares and 0’s with an empty square and consider each row as the base.
+   - Run a loop to traverse through the rows.
+   - Now If the current row is not the first row then update the row as follows, if matrix[i][j] is not zero then matrix[i][j] = matrix[i-1][j] + matrix[i][j].
+   - https://www.geeksforgeeks.org/maximum-size-rectangle-binary-sub-matrix-1s/
+   -
+           int maxRectangle(int A[][C])
+         {
+             // Calculate area for first row and initialize it as
+             // result
+             int result = maxHist(A[0]);
+             // iterate over row to find maximum rectangular area
+             // considering each row as histogram
+             for (int i = 1; i < R; i++) {
+                 for (int j = 0; j < C; j++)
+                     // if A[i][j] is 1 then add A[i -1][j]
+                     if (A[i][j])
+                         A[i][j] += A[i - 1][j];
+                 // Update result if area with current row (as last
+                 // row) of rectangle) is more
+                 result = max(result, maxHist(A[i]));
+             }
+             return result;
+         }
+
+### 7. Number of Islands using DFS - Graphs
+   - The idea is to keep an additional matrix to keep track of the visited nodes in the given matrix, and perform DFS to find the total number of islands
+   -
+              void DFS(vector<vector<int> >& M, int i, int j, int ROW,
+                  int COL)
+               {
+                   // Base condition
+                   // if i less than 0 or j less than 0 or i greater than
+                   // ROW-1 or j greater than COL-  or if M[i][j] != 1 then
+                   // we will simply return
+                   if (i < 0 || j < 0 || i > (ROW - 1) || j > (COL - 1)
+                       || M[i][j] != 1) {
+                       return;
+                   }
+                   if (M[i][j] == 1) {
+                       M[i][j] = 0;
+                       DFS(M, i + 1, j, ROW, COL); // right side traversal
+                       DFS(M, i - 1, j, ROW, COL); // left side traversal
+                       DFS(M, i, j + 1, ROW, COL); // upward side traversal
+                       DFS(M, i, j - 1, ROW,
+                           COL); // downward side traversal
+                       DFS(M, i + 1, j + 1, ROW,
+                           COL); // upward-right side traversal
+                       DFS(M, i - 1, j - 1, ROW,
+                           COL); // downward-left side traversal
+                       DFS(M, i + 1, j - 1, ROW,
+                           COL); // downward-right side traversal
+                       DFS(M, i - 1, j + 1, ROW,
+                           COL); // upward-left side traversal
+                   }
+               }
+               int countIslands(vector<vector<int> >& M)
+               {
+                   int ROW = M.size();
+                   int COL = M[0].size();
+                   int count = 0;
+                   for (int i = 0; i < ROW; i++) {
+                       for (int j = 0; j < COL; j++) {
+                           if (M[i][j] == 1) {
+                               count++;
+                               DFS(M, i, j, ROW, COL); // traversal starts
+                                                       // from current cell
+                           }
+                       }
+                   }
+                   return count;
+               }
+
+### 8. Given a matrix of ‘O’ and ‘X’, replace ‘O’ with ‘X’ if surrounded by ‘X’ - Matrix
+   -
+                 void floodFillUtil(char mat[][N], int x, int y, char prevV, char newV)
+                  {
+                      // Base cases
+                      if (x < 0 || x >= M || y < 0 || y >= N)
+                          return;
+                      if (mat[x][y] != prevV)
+                          return;
+                      // Replace the color at (x, y)
+                      mat[x][y] = newV;
+                      // Recur for north, east, south and west
+                      floodFillUtil(mat, x+1, y, prevV, newV);
+                      floodFillUtil(mat, x-1, y, prevV, newV);
+                      floodFillUtil(mat, x, y+1, prevV, newV);
+                      floodFillUtil(mat, x, y-1, prevV, newV);
+                  }
+                  // Returns size of maximum size subsquare matrix surrounded by 'X'
+                  int replaceSurrounded(char mat[][N])
+                  {
+                     // Step 1: Replace all 'O'  with '-'
+                     for (int i=0; i<M; i++)
+                        for (int j=0; j<N; j++)
+                            if (mat[i][j] == 'O')
+                               mat[i][j] = '-';
+                     // Call floodFill for all '-' lying on edges
+                     for (int i=0; i<M; i++)   // Left side
+                        if (mat[i][0] == '-')
+                          floodFillUtil(mat, i, 0, '-', 'O');
+                     for (int i=0; i<M; i++)  //  Right side
+                        if (mat[i][N-1] == '-')
+                          floodFillUtil(mat, i, N-1, '-', 'O');
+                     for (int i=0; i<N; i++)   // Top side
+                        if (mat[0][i] == '-')
+                          floodFillUtil(mat, 0, i, '-', 'O');
+                     for (int i=0; i<N; i++)  // Bottom side
+                        if (mat[M-1][i] == '-')
+                          floodFillUtil(mat, M-1, i, '-', 'O');
+                     // Step 3: Replace all '-' with 'X'
+                     for (int i=0; i<M; i++)
+                        for (int j=0; j<N; j++)
+                           if (mat[i][j] == '-')
+                               mat[i][j] = 'X';
+                  }
+
+### 9. Rotate a matrix - Matrix
+   -
+           void rotate(vector<vector<int>>& matrix) {
+              int n=matrix.size();
+              for(int row=0;row<n/2;row++){
+                  for(int col=row;col<n-row-1;col++){
+                      swap(matrix[row][col],matrix[col][n-1-row]);
+                      swap(matrix[row][col],matrix[n-1-row][n-1-col]);
+                      swap(matrix[row][col],matrix[n-1-col][row]);
+                  }
+              }
+          }
+
+
+
+  
