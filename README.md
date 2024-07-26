@@ -1544,7 +1544,22 @@
                   }
 
 ### 9. Rotate a matrix - Matrix
+   - 2 Steps to rotate image
+   - Transpose the matrix
+   - Swap the columns
    -
+           void rotate(vector<vector<int>>& matrix) {
+              int row=matrix.size();
+              for(int i=0;i<row;i++){
+                  for(int j=0;j<=i;j++){
+                      swap(matrix[i][j],matrix[j][i]);
+                  }
+              }
+              for(int i=0;i<row;i++){
+                  reverse(matrix[i].begin(),matrix[i].end());
+              }
+          }
+   - 
            void rotate(vector<vector<int>>& matrix) {
               int n=matrix.size();
               for(int row=0;row<n/2;row++){
@@ -1555,6 +1570,159 @@
                   }
               }
           }
+
+
+## Day - 12
+
+### 1. Permute two arrays such that sum of every pair is greater or equal to K - Sorting
+   - The idea is to sort one array in ascending order and another array in descending order and if any index does not satisfy the condition a[i] + b[i] >= K then print “No”, else print “Yes”.
+   -
+           bool isPossible(int a[], int b[], int n, int k)
+            {
+                sort(a, a + n);
+                sort(b, b + n, greater<int>());
+                for (int i = 0; i < n; i++)
+                    if (a[i] + b[i] < k)
+                        return false;
+                return true;
+            }
+
+### 2. Max number of K sum pairs - Two pointers
+   - Sort the input array nums to bring similar elements together.
+   - Initialize two pointers, i at the beginning (0) and j at the end (n-1) of the array.
+   - Iterate until i is less than j:
+    If nums[i] + nums[j] equals k, increment cnt and move i and j pointers towards each other.
+    If nums[i] + nums[j] is greater than k, decrement j to reduce the sum.
+    If nums[i] + nums[j] is less than k, increment i to increase the sum.
+   -
+              int maxOperations(vector<int>& nums, int k) {
+                 int n=nums.size();
+                 sort(nums.begin(),nums.end());
+                 int i=0,j=n-1,cnt=0;
+                 while(i<j){
+                     if((nums[i]+nums[j])==k) {
+                         cnt++;
+                         i++;
+                         j--;
+                     }
+                     else if((nums[i]+nums[j]) >k){
+                         j--;
+                     }
+                     else i++;
+                 }
+                 return cnt;
+             }
+
+### 3. Find pair given difference - Two pointers
+   - Two pointers, i and j, are initialized at indices 0 and 1 respectively.
+   - A while loop is used to iterate until one of the pointers goes out of bounds.
+   - Inside the loop:
+    If the difference between the elements at i and j is equal to n, return true.
+    If the difference is less than n, increment j.
+    If the difference is greater than n, increment i.
+   -
+           int findPair(int n, int x, vector<int> &arr) {
+              sort(arr.begin(), arr.end());
+              int i = 0;
+              int j = 1;
+              while (i < n && j < n) {
+                  if (i != j && arr[j] - arr[i] == x) {
+                      return 1;
+                  } else if (arr[j] - arr[i] < x) {
+                      j++;
+                  } else {
+                      i++;
+                  }
+              }
+              return -1;
+          }
+
+
+### 4. Ceiling in a sorted array - Binary search
+   - break once condition break loop will return start and ans is low which will be next smallest greater than target which is ceiling
+   - 
+           int ceilSearch(int arr[], int low, int high, int x)
+            {
+                if (arr.size() == 0) {
+                    return -1;
+                }
+                int mid;
+                while (low <= high) {
+                    mid = low + (high - low) / 2;
+                    if (arr[mid] == x)
+                        return mid;
+                    else if (x < arr[mid])
+                        high = mid - 1;
+                    else
+                        low = mid + 1;
+                }
+                return low;
+            }
+
+### 5. Check if reversing a sub array make the array sorted - Sorting
+   - Initialize two variables x and y with -1.
+   - Iterate over the array.
+       Find the first number for which a[i] > a[i+1] and store it into x. 
+       Similarly, Store index i+1 as well into y, As this will keep track of the ending of the subarray which is needed to reverse.
+   - Check if x == -1 then array is already sorted so return true.
+       Otherwise, reverse the array from index x to index y.
+       Traverse the array to check for every element is sorted or not
+   -
+           bool sortArr(int a[], int n) 
+            { 
+                int x = -1; 
+                int y = -1; 
+                for (int i = 0; i < n - 1; i++) { 
+                    if (a[i] > a[i + 1]) { 
+                        if (x == -1) { 
+                            x = i; 
+                        } 
+                        y = i + 1; 
+                    } 
+                } 
+                if (x != -1) { 
+                    reverse(a + x, a + y + 1); 
+                    for (int i = 0; i < n - 1; i++) { 
+                        if (a[i] > a[i + 1]) { 
+                            return false; 
+                            return 0; 
+                        } 
+                    } 
+                } 
+                return true; 
+            } 
+
+### 6. Radix Sort - Sorting
+   - Radix Sort is a linear sorting algorithm that sorts elements by processing them digit by digit. It is an efficient sorting algorithm for integers or strings with fixed-size keys.
+   - It assumes that sorting numbers digit by digit will eventually result in a fully sorted list.
+   -
+           void countSort(int arr[], int n, int exp)
+            {
+                // Output array int output[n];
+                int i, count[10] = { 0 };
+                // Store count of occurrences in count[]
+                for (i = 0; i < n; i++)
+                    count[(arr[i] / exp) % 10]++;
+                // Change count[i] so that count[i] now contains actual position of this digit in output[]
+                for (i = 1; i < 10; i++)
+                    count[i] += count[i - 1];
+                // Build the output array
+                for (i = n - 1; i >= 0; i--) {
+                    output[count[(arr[i] / exp) % 10] - 1] = arr[i];
+                    count[(arr[i] / exp) % 10]--;
+                }
+                for (i = 0; i < n; i++)
+                    arr[i] = output[i];
+            }
+            void radixsort(int arr[], int n)
+            {
+                int m = getMax(arr, n);
+                for (int exp = 1; m / exp > 0; exp *= 10)
+                    countSort(arr, n, exp);
+            }
+
+
+
 
 
 
