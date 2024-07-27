@@ -1722,7 +1722,178 @@
             }
 
 
+## Day - 13
 
+### 1. Find Peak Element - Binary Search and Sorting
+   - To reduce the search space and make it more efficient we can do the following things:-
+(i): check if there is only one element in the array, if it is, then return the first index(0) itself.
+(ii): If the first element is greater than the second element then again return the first index(0). (reason -> read the 3rd point in problem description).
+(iii): If the last element is greater than second last element, then return the last index(n-1).
+   - Now simply apply Binary Search taking variables start = 0, end = n-2(because we already checked the last element so n-2), and mid.
+   - If mid element is greater than mid+1, then shift to left side of array reducing the sarch space. Else start from mid+1 the same procedure in a loop.
+   -
+              int findPeakElement(vector<int>& nums) {
+                 int n=nums.size();
+                 if(n==1 || nums[0]>nums[1])
+                     return 0;
+                 if(nums[n-1]>nums[n-2])
+                     return n-1;
+                 int start=0,end=n-2;
+                 while(start<end){
+                     int mid=start+(end-start)/2;
+                     if(nums[mid]>nums[mid+1]){
+                         end=mid;
+                     }else{
+                         start=mid+1;
+                     }
+                 }  
+                 return start;  
+             }
+
+
+### 2. Allocate Minimum Pages - Binary search
+   - When no valid answer exists: If the number of students is greater than the number of books (i.e, M > N), In this case at least 1 student will be left to which no book has been assigned.
+   - When a valid answer exists.
+    The maximum possible answer could be when there is only one student. So, all the book will be assigned to him and the result would be the sum of pages of all the books.
+    The minimum possible answer could be when number of student is equal to the number of book (i.e, M == N) , In this case all the students will get at most one book. So, the result would be the maximum number of pages among them (i.e, maximum(pages[])).
+   - Hence, we can apply binary search in this given range and each time we can consider the mid value as the maximum limit of pages one can get. And check for the limit if answer is valid then update the limit accordingly.
+   -
+              bool isPossible(int arr[],int n,int m,long long curMin){
+                 int studentReq=1;
+                 long long curSum=0;
+                 for(int i=0;i<n;i++){
+                     if(arr[i]>curMin)
+                         return false;
+                     if(curSum+arr[i]>curMin){
+                         studentReq++;
+                         curSum=arr[i];
+                         if(studentReq>m)
+                             return false;
+                     }else{
+                         curSum+=arr[i];
+                     }
+                 }
+                 return true;
+             }
+             long long findPages(int n, int arr[], int m) {
+                 long long sum=0;
+                 if(n<m)
+                     return -1;
+                 for(int i = 0; i < n; ++i)
+                     sum += arr[i];
+                 long long start=0,end=sum,mid;
+                 long long int ans=int(1e15);
+                 while(start<=end){
+                     mid=(start+end)/2;
+                     if(isPossible(arr,n,m,mid)){
+                         ans=ans<mid?ans:mid;
+                         end=mid-1;
+                     }else{
+                         start=mid+1;
+                     }
+                 }
+                 return ans;
+             }
+
+### 3. Aggressive cows - Binary search
+   - Initialize low as 1 (minimum possible distance) and high as the difference between the last and first stall (maximum possible distance).
+   - Check if it’s possible to place all cows with a minimum distance of ‘mid’ using the ‘canPlaceCows’ function.
+   - If the number of cows placed is equal to or greater than the required number of cows, return true.
+   - If it’s possible to place all cows with the current minimum distance, increase the low to search for larger distances.
+   - If it’s not possible, decrease the ‘high’ to search for smaller distances.
+   -
+           bool canPlaceCows(vector<int> &stalls, int distance, int cows) {
+                int totalStalls = stalls.size();
+                int cowsPlaced = 1; // Number of cows already placed
+                int lastStall = stalls[0]; // Position of the last placed cow
+                for (int i = 1; i < totalStalls; i++) {
+                    // Check if the current stall can accommodate a cow
+                    if (stalls[i] - lastStall >= distance) {
+                        cowsPlaced++; // Place the next cow
+                        lastStall = stalls[i]; // Update the position of the last placed cow
+                    }
+                    if (cowsPlaced >= cows) {
+                        return true; // We can place all cows with the given distance
+                    }
+                }
+                return false;
+            }
+            int findMaxMinDistance(vector<int> &stalls, int numberOfCows) {
+                      int totalStalls = stalls.size();
+                      sort(stalls.begin(), stalls.end());
+                      int low = 1, high = stalls[totalStalls - 1] - stalls[0];
+                      while (low <= high) {
+                          int mid = low + (high - low) / 2;
+                          if (canPlaceCows(stalls, mid, numberOfCows)) {
+                              low = mid + 1;
+                          } else {
+                              high = mid - 1;
+                          }
+                      }
+                      return high;
+                  }
+
+### 4. Minimum swaps to sort an array - Graph
+   - We will have N nodes and an edge directed from node i to node j if the element at the i’th index must be present at the j’th index in the sorted array.
+   - Sort curr and run a loop for i [0, N]
+   - If the current element is already visited or it is at its correct position then continue
+   - Else calculate the cycle size from the current element using a while loop
+   - Declare an integer j equal to i and in the while loop set j equal to the index of curr[j] and increase cycle size while the element at jth position is not visited
+   - Increase the answer by the size of the current cycle – 1 if the cycle size is more than 1.
+   - 
+              minSwaps(vector<int>&nums)
+            	{
+            	    int n=nums.size();
+            	    vector<pair<int,int>> cur(n);
+            	    for(int i=0;i<n;i++){
+            	        cur[i].first=nums[i];
+            	        cur[i].second=i;
+            	    }
+            	    sort(cur.begin(),cur.end());
+            	    vector<bool> vis(n,false);
+            	    int ans=0;
+            	    for(int i=0;i<n;i++){
+            	        if(vis[i] || cur[i].second==i){
+            	            continue;
+            	        }
+            	        int cycle_size=0;
+            	        int j=i;
+            	        while(!vis[j]){
+            	            vis[j]=true;
+            	            j=cur[j].second;
+            	            cycle_size++;
+            	        }
+            	        ans+=(cycle_size>1)?cycle_size-1:0;
+            	    }
+            	    return ans;
+            	}
+
+
+### 5. Search in a Rotated array - Binary search
+   - Determine which side of the array is properly sorted:
+   - If the left side (nums[low] to nums[mid]) is sorted: Check if the target lies within this range. If yes, adjust the high pointer to mid - 1. Otherwise, adjust the low pointer to mid + 1
+   - If the right side (nums[mid] to nums[high]) is sorted: Check if the target lies within this range. If yes, adjust the low pointer to mid + 1. Otherwise, adjust the high pointer to mid - 1.
+   -
+              int search(vector<int>& nums, int target) {
+                 int n=nums.size(),low=0,high=n-1;
+                 while(low<=high){
+                     int mid=(low+high)/2;
+                     if(nums[mid]==target)
+                         return mid;
+                     if(nums[low]<=nums[mid]){
+                         if(nums[low]<=target && nums[mid]>target)
+                             high=mid-1;
+                         else
+                             low=mid+1;    
+                     }else{
+                         if(nums[high]>=target && nums[mid]<target)
+                             low=mid+1;
+                         else
+                             high=mid-1; 
+                     }   
+                 }
+                 return -1;
+             }
 
 
 
