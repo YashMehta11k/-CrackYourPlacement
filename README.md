@@ -1896,5 +1896,292 @@
              }
 
 
+## Day - 18
 
-  
+### 1. Count of small number  - Merge Sort
+   - arr[i].second: This retrieves the original index of the element arr[i] in the nums array.
+   - right - j + 1: This calculates the number of elements remaining in the right subarray starting from index j to right. Since the right subarray is already sorted and arr[i] is greater than arr[j], all these elements are smaller than arr[i].
+   - count[arr[i].second] += (right - j + 1);: This updates the count of smaller elements to the right for the original index of arr[i] by adding the number of remaining elements in the right subarray
+   - for (int l = left; l <= right; l++) This loop iterates over the indices from left to right, inclusive. The loop variable l represents the current index in the original array arr that we are updating with the merged values from temp
+   -
+                 void merge(int left,int mid,int right,vector<pair<int,int>> &arr,vector<int> &count){
+                    vector<pair<int,int>> temp(right-left+1);
+                    int i=left;
+                    int j=mid+1;
+                    int k=0;
+                    while(i<=mid && j<=right){
+                        if(arr[i].first<=arr[j].first)
+                            temp[k++]=arr[j++];
+                        else{
+                            count[arr[i].second]+=(right-j+1);
+                            temp[k++]=arr[i++];
+                        }
+                    }
+                    while(i<=mid){
+                        temp[k++]=arr[i++];
+                    }
+                    while(j<=right){
+                        temp[k++]=arr[j++];
+                    }
+                    for(int l=left;l<=right;l++){
+                        arr[l]=temp[l-left];
+                    }
+                }
+                void mergeSort(int left,int right,vector<pair<int,int>> &arr,vector<int> &count){
+                    if(left>=right)
+                        return;
+                    int mid=left+(right-left)/2;
+                    mergeSort(left,mid,arr,count);
+                    mergeSort(mid+1,right,arr,count);
+                    merge(left,mid,right,arr,count);
+                }
+                vector<int> countSmaller(vector<int>& nums) {
+                    int n=nums.size();
+                    vector<pair<int,int>> arr;
+                    for(int i=0;i<n;i++)
+                        arr.push_back({nums[i],i});
+                    vector<int> count(n,0);
+                    mergeSort(0,n-1,arr,count);
+                    return count;
+                }
+
+### 2. Split array largest sum  - Binary search
+   - Initialize `low` to the maximum element in `nums` and `high` to the sum of all elements in `nums`.
+   - Use binary search to find the minimum possible maximum subarray sum by adjusting `low` and `high` based on the number of subarrays needed.
+   - In each iteration, calculate `mid` as the average of `low` and `high` and use the `check` function to determine how many subarrays are required if no subarray sum exceeds `mid`.
+   - If the `check` function returns more subarrays than `k`, set `low` to `mid + 1`; otherwise, set `high` to `mid - 1`.
+   - Continue the binary search until `low` exceeds `high`, then return `low` as the minimum possible maximum sum.
+   -
+                 int check(vector<int> &nums,int maxSum){
+                    int count=1;
+                    long long sum=0;
+                    for(int i=0;i<nums.size();i++){
+                        if(sum+nums[i]<=maxSum){
+                            sum+=nums[i];
+                        }else{
+                            count++;
+                            sum=nums[i];
+                        }
+                    }
+                    return count;
+                }
+                int splitArray(vector<int>& nums, int k) {
+                    int n=nums.size();
+                    int low=0,high=0;
+                    for(int i=0;i<n;i++){
+                        high+=nums[i];
+                        low=max(low,nums[i]);
+                    }
+                    while(low<=high){
+                        int mid=(low+high)/2;
+                        int count=check(nums,mid);
+                        if(count>k){
+                            low=mid+1;
+                        }else{
+                            high=mid-1;
+                        }
+                    }
+                    return low;
+                }
+
+### 3. Smallest positive missing number - 
+   - Segregate positive numbers from others i.e., move all non-positive numbers to the left side
+   - Now ignore non-positive elements and consider only the part of the array which contains all positive elements.
+   - Traverse the array containing all positive numbers and to mark the presence of an element x, change the sign of value at index x to negative.
+   - Traverse the array again and print the first index which has a positive value.
+   -
+              int segregateArr(int arr[],int n){
+                 int j=0,i;
+                 for(int i=0;i<n;i++){
+                     if(arr[i]<=0){
+                         swap(arr[i],arr[j]);
+                         j++;
+                     }
+                 }
+                 return j;
+             }
+             int find(int arr[],int n){
+                 for(int i=0;i<n;i++){
+                     if(abs(arr[i])-1<n && arr[abs(arr[i])-1]>0)
+                         arr[abs(arr[i])-1]=-arr[abs(arr[i])-1];
+                 }
+                 for(int i=0;i<n;i++){
+                     if(arr[i]>0){
+                         return i+1;
+                     }
+                 }
+                 return n+1;
+             }
+             int missingNumber(int arr[], int n) 
+             { 
+                 int shift=segregateArr(arr,n);
+                 return find(arr+shift,n-shift);
+             } 
+
+
+### 4. Middle of Linked List - Fast and slow pointers 
+   - Initialize two pointers, fast and slow, both starting at the head of the linked list.
+   - Move the fast pointer two steps at a time and the slow pointer one step at a time.
+   - Continue moving the pointers until fast reaches the end of the list or fast's next node is null.
+   - When the loop ends, the slow pointer will be at the middle node of the list.
+   - Return the slow pointer as the middle node.
+   -
+           /**
+             * Definition for singly-linked list.
+             * struct ListNode {
+             *     int val;
+             *     ListNode next;
+             *     ListNode() : val(0), next(nullptr) {}
+             *     ListNode(int x) : val(x), next(nullptr) {}
+             *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+             * };
+             */
+            class Solution {
+            public:
+                ListNode* middleNode(ListNode* head) {
+                    ListNode *fast=head;
+                    ListNode *slow=head;
+                    while(fast!=NULL && fast->next!=NULL){
+                        fast=fast->next->next;
+                        slow=slow->next;
+                    }
+                    return slow;
+                }
+            };
+
+### 5. Linked List Cycle - Fast and slow pointers 
+   - Initialize two pointers, fast and slow, both starting at the head of the linked list.
+   - Move the fast pointer two steps at a time and the slow pointer one step at a time.
+   - Continue moving the pointers while checking if fast and fast->next are not null.
+   - If fast and slow pointers meet, a cycle is detected, so return true.
+   - If the loop ends without the pointers meeting, return false indicating no cycle is present
+   -
+           bool hasCycle(ListNode *head) {
+              ListNode *fast=head,*slow=head;
+              while(fast!=NULL && fast->next!=NULL){
+                  fast=fast->next->next;
+                  slow=slow->next;
+                  if(fast==slow){
+                      return true;
+                  }
+              }
+              return false;
+          }
+
+### 6. Linked List Binary into integer - Math
+   - Initialize an integer num to 0.
+   - Traverse the linked list starting from the head node.
+   - For each node, multiply num by 2 and add the node's value to num.
+   - Move to the next node in the list and repeat the process.
+   - Return num after the entire list has been processed.
+   -
+           int getDecimalValue(ListNode* head) {
+              int num=0;
+              while(head!=NULL){
+                  num=num*2+head->val;
+                  head=head->next;
+              }
+              return num;
+          }
+
+### 7. Linked List Binary into integer - List
+   - Initialize a pointer res to the head of the linked list to keep track of the list's start.
+   - Traverse the linked list using the head pointer while it and its next node are not null.
+   - If the current node's value equals the next node's value, adjust the next pointer to skip the next node.
+   - If the current node's value is not equal to the next node's value, move the head pointer to the next node.
+   - Return the res pointer, which points to the head of the modified linked list without duplicates.
+   -
+           ListNode* deleteDuplicates(ListNode* head) {
+              ListNode* res = head;
+              while (head && head->next) {
+                  if (head->val == head->next->val) {
+                      head->next = head->next->next;
+                  } else {
+                      head = head->next;
+                  }
+              }
+              return res;  
+          }
+
+
+### 8. Sort linked lists of 0s, 1s and 2s - List
+   - The idea is to maintain 3 pointers named zero, one and two to point to current ending nodes of linked lists containing 0, 1, and 2 respectively. For every traversed node, we attach it to the end of its corresponding list.
+        If the current node’s value is 0, append it after pointer zero and move pointer zero to current node.
+        If the current node’s value is 1, append it after pointer one and move pointer one to current node.
+        If the current node’s value is 2, append it after pointer two and move pointer two to current node.
+   - Finally, we link all three lists. To avoid many null checks, we use three dummy pointers zeroD, oneD and twoD that work as dummy headers of three lists.
+   -
+              Node* sortList(Node* head) {
+             if (!head || !(head->next)) 
+                 return head; 
+             Node* zeroD = new Node(0); 
+             Node* oneD = new Node(0); 
+             Node* twoD = new Node(0);
+             Node *zero = zeroD, *one = oneD, *two = twoD;  
+             Node* curr = head; 
+             while (curr) { 
+                 if (curr->data == 0) { 
+                     zero->next = curr; 
+                     zero = zero->next; 
+                 } 
+                 else if (curr->data == 1) { 
+                     one->next = curr; 
+                     one = one->next; 
+                 } 
+                 else { 
+                     two->next = curr; 
+                     two = two->next; 
+                 } 
+                 curr = curr->next; 
+             } 
+             zero->next = (oneD->next) ? (oneD->next) : (twoD->next); 
+             one->next = twoD->next; 
+             two->next = NULL; 
+             // Updated head 
+             head = zeroD->next; 
+             // Delete dummy nodes 
+             delete zeroD; 
+             delete oneD; 
+             delete twoD; 
+             return head; 
+         } 
+
+### 9. Remove element from the LinkedList - Recursion
+   - Create a dummy node temp with a value of 0 and set its next pointer to the head of the linked list.
+   - Initialize a pointer curr to the dummy node temp.
+   - Traverse the linked list using curr while curr->next is not null.
+   - If the value of the next node equals val, update curr->next to skip the next node; otherwise, move curr to the next node.
+   - Return temp->next, which points to the head of the modified linked list.
+   -
+              ListNode* removeElements(ListNode* head, int val) {
+                 ListNode *temp=new ListNode(0);
+                 temp->next=head;
+                 ListNode *curr=temp;
+                 while(curr->next!=NULL){
+                     if(curr->next->val==val)
+                         curr->next=curr->next->next;
+                     else
+                         curr=curr->next;
+                 }
+                 return temp->next;
+             }
+
+### 10. Merge tow LinkedLists - Recursion
+   - Check if either list1 or list2 is null and return the non-null list if one is empty.
+   - Compare the values of the current nodes in list1 and list2.
+   - If list1's value is smaller, set list1->next to the result of merging the next node of list1 with list2, then return list1.
+   - If list2's value is smaller or equal, set list2->next to the result of merging list1 with the next node of list2, then return list2.
+   - Recursively merge the lists by repeating the above steps until both lists are fully merged
+   -
+              ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+                 if(list1==NULL || list2==NULL){
+                     return list1?list1:list2;
+                 }
+                 if(list1->val<list2->val){
+                     list1->next=mergeTwoLists(list1->next,list2);
+                     return list1;
+                 }else{
+                     list2->next=mergeTwoLists(list1,list2->next);
+                     return list2;
+                 }
+             }
