@@ -2185,3 +2185,159 @@
                      return list2;
                  }
              }
+
+
+
+## Day - 19
+
+### 1. Multiply two linked lists  - Modular arithmetic
+   - Convert the linked lists to integers: Traverse each linked list and construct the integer it represents.
+   - Multiply the integers: Multiply the two integers obtained from the linked lists.
+   - Take modulo 109+7109+7: Since the result can be very large, take the result modulo 109+7109+7.
+   -
+              long long multiplyTwoLists(Node *first, Node *second) {
+                 long long num1 = 0, num2 = 0;
+                 int mod = 1000000007;
+                 while (first || second) {
+                     if (first) {
+                         num1 = ((num1 * 10) % mod + (first->data) % mod) % mod;
+                         first = first->next;
+                     }
+                     if (second) {
+                         num2 = ((num2 * 10) % mod + second->data % mod) % mod;
+                         second = second->next;
+                     }
+                 }
+                 return (num1 % mod * num2 % mod) % mod;
+             }
+
+### 2. Intersection of two linked lists  - Hash Table , Two pointers
+   - Form a cycle in headA by connecting its tail to its head.
+   - Detect the cycle using Floyd’s algorithm starting from headB.
+   - Find the intersection by resetting one pointer to headB and moving both pointers step-by-step until they meet, then restore the list.
+   -
+           ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+              ListNode * tail=headA;
+              while(tail->next)
+                  tail=tail->next;
+              tail->next=headA;
+              ListNode *fast=headB,*slow=headB;
+              while(fast && fast->next){
+                  slow=slow->next;
+                  fast=fast->next->next;
+                  if(slow==fast){
+                      slow=headB;
+                      while(slow!=fast){
+                          slow=slow->next;
+                          fast=fast->next;
+                      }
+                      tail->next=NULL;
+                      return slow;
+                  }
+              }
+              tail->next=NULL;
+              return NULL;
+          }
+
+### 3. Delete nodes having greater value on right  - Recursion
+   - The base case of the recursion is when you reach the last node (head.next == null). In this case, there's nothing to compare with, so simply return the head node.
+   - For each recursive call, the compute function is invoked on the next node (head.next) in the linked list. This effectively traverses the entire linked list in reverse order, reaching the end of the list first.
+   - As the recursion unwinds, you start comparing each node (head) with its next node (head.next). If the value of the current node (head.data) is less than the value of its next node (head.next.data), it means the current node should be deleted since all nodes to its right are not greater than itself.
+   - In such a case,  update the next pointer of the current node (head.next) to point directly to the result of the recursive call (compute(head.next)). This effectively skips the current node in the modified linked list.
+   - If the value of the current node is greater than or equal to the value of its next node, you simply return the current node (head) since it remains valid in the new linked list.
+   - The recursion continues until the first call, where the final modified linked list is returned.
+   -
+              Node *compute(Node *head)
+             {
+                 if (head->next == nullptr) {
+                     return head;
+                 }
+                 head->next = compute(head->next);
+                 if (head->data < head->next->data) {
+                     return head->next;
+                 }
+                 return head;
+             }
+
+### 4. Palindrome Linked List  - Stack and queue
+   -
+              bool isPalindrome(ListNode* head) {
+                 stack<int> start;
+                 queue<int> end;
+                 ListNode* curr = head;
+                 while(curr != NULL){ 
+                     start.push(curr->val); 
+                     end.push(curr->val); 
+                     curr = curr->next;
+                 }
+                 while(!start.empty() && !end.empty()){
+                     if(start.top() != end.front()) return false;
+                     start.pop(); end.pop();
+                 }
+                 return true;
+             }
+
+### 5. Reverse Linked List  - Recursion
+   - Check if the current head is None. If it is, return None (base case).
+   - Initialize newHead to the current head.
+   - If the current head has a next node, make a recursive call to reverse the rest of the list.
+   - After the recursive call returns, update the next pointer of the next node to point to the current head.
+   - Break the original link by setting the next pointer of the current head to None.
+   - Return newHead, which now points to the original last node, making it the new head of the reversed list.
+   -
+              ListNode* reverseList(ListNode* head) {
+                 if (!head) {
+                     return nullptr;
+                 }
+                 ListNode* newHead = head;
+                 if (head->next) {
+                     newHead = reverseList(head->next);
+                     head->next->next = head;
+                 }
+                 head->next = nullptr;
+                 return newHead;
+             }
+
+
+### 6. Add two numbers in Linked List - Recursion
+   - Base Case: The function returns NULL if both lists are empty, or returns the non-empty list if one is NULL.
+   - Sum Calculation: It creates a new node with the value of the sum of the current nodes' values from l1 and l2, modulo 10.
+   - Carry Handling: If the sum is 10 or more, it adds a carry node (1) to the next recursive call, adjusting for the carry.
+   -
+           ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+              if (!l1 && !l2) 
+                  return NULL;
+              else if (!l1)
+                  return l2;
+              else if (!l2) 
+                  return l1;
+              int a = l1->val + l2->val;
+              ListNode* p = new ListNode(a % 10);
+              p->next = addTwoNumbers(l1->next, l2->next);
+              if (a >= 10) 
+                  p->next = addTwoNumbers(p->next, new ListNode(1));
+              return p;
+          }
+
+     
+### 7. Copy List with Random pointer - Hash Map
+   - The basic idea is to traverse the list twice. In the first pass, we create a new node for each node in the original list and store the mapping in a hash map. In the second pass, we set the next and random pointers for each new node based on the hash map
+   -
+              Node* copyRandomList(Node* head) {
+                 if(!head){
+                     return NULL;
+                 }
+                 unordered_map<Node*,Node*> copy;
+                 Node* curr=head;
+                 while(curr){
+                     copy[curr]=new Node(curr->val);
+                     curr=curr->next;
+                 }
+                 curr=head;
+                 while(curr){
+                     copy[curr]->next=copy[curr->next];
+                     copy[curr]->random=copy[curr->random];
+                     curr=curr->next;
+                 }
+                 return copy[head];
+             }
