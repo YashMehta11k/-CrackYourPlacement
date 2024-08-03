@@ -2341,3 +2341,428 @@
                  }
                  return copy[head];
              }
+
+
+## Day - 20
+
+### 1. Add two numbers in linked lists  - Stack
+   - Sum and Carry: Initialize carry to 0 and create a dummy node ans; use temp to build the resulting list.
+   - Adding Digits: Pop values from stacks, add them along with carry, create a new node for the current digit, and adjust carry.
+   - Node Linking: Link the new node as the new head of the resulting list and update temp.
+   - Final Carry Check: If there's a remaining carry, create a final node for it and link it as the head of the result list.
+   -
+              ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+                 stack<int> s1,s2;
+                 while(l1){
+                     s1.push(l1->val);
+                     l1=l1->next;
+                 }
+                 while(l2){
+                     s2.push(l2->val);
+                     l2=l2->next;
+                 }
+                 int carry=0,sum=0;
+                 ListNode* ans=new ListNode();
+                 ListNode* temp=NULL;
+                 while(!s1.empty() || !s2.empty()){
+                     if(!s1.empty()){
+                         sum+=s1.top();
+                         s1.pop();
+                     }
+                     if(!s2.empty()){
+                         sum+=s2.top();
+                         s2.pop();
+                     }
+                     carry=sum/10;
+                     ListNode* newhead=new ListNode(sum%10);
+                     newhead->next=temp;
+                     temp=newhead;
+                     sum=carry;
+                 }
+                 if(carry!=0){
+                     ListNode* newhead=new ListNode(carry);
+                     newhead->next=temp;
+                     temp=newhead;
+                 }
+                 return temp;
+             }
+
+### 2. Reverse Linked List Between - Swapping
+   - Swap Node: Use swap to temporarily hold the node to be moved (swap = curr->next).
+   - Update curr: Adjust curr->next to skip over the swap node (curr->next = swap->next).
+   - Insert Node: Insert swap at the beginning of the reversed sublist (swap->next = prev->next and prev->next = swap).
+   -
+           ListNode* reverseBetween(ListNode* head, int left, int right) {
+              if(head==NULL)
+                  return NULL;
+              if(head->next==NULL)
+                  return head;
+              ListNode* temp=new ListNode(0);
+              temp->next=head;
+              ListNode* prev=temp;
+              for(int i=0;i<left-1;i++)
+                  prev=prev->next;
+              ListNode* curr=prev->next;
+              for(int i=0;i<right-left;i++){
+                  ListNode* swap=curr->next;
+                  curr->next=swap->next;
+                  swap->next=prev->next;
+                  prev->next=swap;
+              } 
+              return temp->next;
+          }
+
+### 3. Reorder Linked List  - Stack
+   - Find Middle: Use slow and fast pointers to locate the middle of the list, where slow ends up at the midpoint, and split the list into two halves.
+   - Stack Push: Push nodes from the second half of the list onto a stack for later reversal.
+   - Reorder List: Reattach nodes from the stack into the first half of the list, interleaving nodes from the stack with the remaining nodes.
+   -
+              void reorderList(ListNode* head) {
+                 if(head==NULL || head->next==NULL) 
+                     return ;
+                 ListNode * dummy = new ListNode(0);
+                 dummy->next = head;
+                 ListNode * slow = dummy;
+                 ListNode * fast = dummy;
+                 while(fast && fast->next){
+                     slow = slow ->next;
+                     fast = fast->next->next;
+                 }
+                 stack <ListNode*> st;
+                 ListNode* temp = slow->next;
+                 slow -> next = NULL;
+                 while(temp){
+                     st.push(temp);
+                     temp = temp->next;
+                 }
+                 slow = dummy->next;
+                 while(!st.empty()){
+                     temp = st.top();
+                     st.pop();
+                     temp->next = slow->next;
+                     slow->next = temp;
+                     slow = temp->next;
+                 }
+                dummy->next = NULL;
+                delete dummy;
+             }
+
+### 4. Remove the Nth node from the end of the List  - Two pointers
+   - Here we use a two-pointer technique to maintain a gap of n nodes between two pointers, ensuring that when the first pointer reaches the end, the second pointer is just before the node to be removed. This allows efficient removal of the nth node from the end in a single pass.
+   - Advance Head: Move the head pointer n steps forward to maintain a gap of n nodes between head and ans.
+   - Traverse List: Move both head and ans pointers one step at a time until head reaches the end of the list, keeping the gap constant.
+   - Remove Node: Adjust the next pointer of the node pointed to by ans to skip the nth node from the end.
+   -
+              ListNode* removeNthFromEnd(ListNode* head, int n) {
+                 ListNode* curr=new ListNode(0,head);
+                 ListNode* ans=curr;
+                 for(int i=0;i<n;i++){
+                     head=head->next;
+                 }
+                 while(head){
+                     head=head->next;
+                     ans=ans->next;
+                 }
+                 ans->next=ans->next->next;
+                 return curr->next;
+             }
+
+### 5. Flatten a mutilevel doubly linked List  - DFS
+   - Traverse the list while handling child pointers:
+      - Iterate through the list nodes.
+      - If a node has a child, update the next and child pointers accordingly.
+      - Collect the next node after the current level in a vector nodes (stack can also be used) for later connection.
+   - Reverse Process Child Nodes:
+      - Reverse the nodes vector to traverse child nodes in the correct order.
+      - next pointer always indicate last node at end of each iteration. So that you can attach the next list's head to previous one's end
+      - Connect each child node to its parent node.
+               -
+                 Node* flatten(Node* head) {
+                    Node* curr=head;
+                    Node* next;
+                    vector<Node*> nodes;
+                    while(curr){
+                        Node* it=curr;
+                        while(it->child==NULL && it->next!=NULL)
+                            it=it->next;
+                        Node* forward=it->next;
+                        nodes.push_back(forward);
+                        Node* ch=it->child;
+                        it->next=ch;
+                        it->child=NULL;
+                        if(ch){
+                            ch->prev=it;
+                        }
+                        next=it;
+                        curr=ch;
+                    }
+                    reverse(nodes.begin(),nodes.end());
+                    for(auto node:nodes){
+                        Node* temp=node;
+                        if(temp){
+                            next->next=node;
+                            node->prev=next;
+                            while(temp->next!=NULL){
+                                temp=temp->next;
+                            }
+                            next=temp;
+                        }
+                    }
+                    return head;
+                }
+
+
+### 6. Partition List  - Two Pointers
+   - Create two dummy nodes to serve as heads for the two partitions. Traverse the original linked list, and for each node
+      - If the node's value is less than x, append it to the first partition.
+      - If the node's value is greater than or equal to x, append it to the second partition.
+   - Merge the two partitions by attaching the tail of the first partition to the head of the second partition.
+   - Ensure to terminate the second partition's tail to prevent cycles in the resulting list
+   -
+              ListNode* partition(ListNode* head, int x) {
+                 ListNode* newHead1 = new ListNode ( -1 ) ;
+                 ListNode* tail1 = newHead1 ;
+                 ListNode* newHead2 = new ListNode ( -1 ) ;
+                 ListNode* tail2 = newHead2 ;
+                 ListNode* ptr = head ;
+                 while ( ptr != nullptr ) 
+                 {
+                     if ( ptr -> val < x )
+                     {
+                         tail1 -> next = ptr ;
+                         ptr = ptr -> next ;
+                         tail1 = tail1 -> next ;
+                     }
+                     else
+                     {
+                         tail2 -> next = ptr ;
+                         ptr = ptr -> next ;
+                         tail2 = tail2 -> next ;
+                     }
+                 }
+                 tail1 -> next = newHead2 -> next ;
+                 tail2 -> next = nullptr ;
+                 return newHead1 -> next ;
+             }
+     
+### 7. Remove duplicates from sorted list II  - Two Pointers
+   - Use a dummy node to simplify edge cases.
+   - Initialize two pointers, prev and curr. prev points to the last node in the result list, and curr traverses the list.
+   - For each node, if it has duplicates, skip all nodes with the same value.
+   - If no duplicates are found, move prev to the next node.
+   -
+              ListNode* deleteDuplicates(ListNode* head) {
+                 if(head==NULL || head->next==NULL)
+                     return head;
+                 ListNode* dummy=new ListNode(0,head);
+                 ListNode* prev=dummy;
+                 ListNode* curr=head;
+                 while(curr){
+                     while(curr->next && curr->val==curr->next->val){
+                         curr=curr->next;
+                     }
+                     if(prev->next!=curr){
+                         prev->next=curr->next;
+                     }else{
+                         prev=prev->next;
+                     }
+                     curr=curr->next;
+                 }
+                 return dummy->next;
+             }
+
+### 8. Rearrange a Linked List in Zig-Zag fashion  - Linked List
+   - Initialize Flag: Start with a boolean flag set to true, indicating that the next node should be greater in the desired zigzag pattern.
+   - Traverse List: Iterate through the linked list, starting from the head, to the end of the list.
+   - Check Relation: Depending on the flag, compare the current node's data with the next node's data:
+       - If the flag is true and the current node's data is greater than the next node's data, swap their values.
+       - If the flag is false and the current node's data is less than the next node's data, swap their values.
+   - Advance and Toggle: Move to the next node and toggle the flag to indicate the opposite relation for the next pair of nodes
+   -
+              void zigZagList(Node* head)
+               {
+                   bool flag = true;
+                   Node* current = head;
+                   while (current->next != NULL) {
+                       if (flag) /* "<" relation expected */
+                       {
+                           if (current->data > current->next->data)
+                               swap(current->data, current->next->data);
+                       }
+                       else{
+                           if (current->data < current->next->data)
+                               swap(current->data, current->next->data);
+                       }
+                       current = current->next;
+                       flag = !flag; /* flip flag for reverse checking */
+                   }
+               }
+
+### 9. Sort Linked List - Merge sort
+   - Merge Two Lists: Define mergeList to combine two sorted linked lists l1 and l2 by iterating through both lists, comparing values, and attaching the smaller value to the result list.
+   - Base Case for Sorting: In sortList, return the head if the list is empty or has only one node, as it's already sorted.
+   - Find Middle: Use slow and fast pointers to find the middle of the list, splitting it into two halves by setting the next of the node before the middle to NULL.
+   - Recursive Sort: Recursively call sortList on each half to sort the two halves independently.
+   - Merge Sorted Halves: Use mergeList to merge the two sorted halves back together and return the sorted list.
+   -
+              ListNode* mergeList(ListNode* l1,ListNode* l2){
+                 ListNode* prev=new ListNode(-1),*curr=prev;
+                 while(l1 && l2){
+                     if(l1->val<=l2->val){
+                         curr->next=l1;
+                         l1=l1->next;
+                     }else{
+                         curr->next=l2;
+                         l2=l2->next;
+                     }
+                     curr=curr->next;
+                 }
+                 if(l1){
+                     curr->next=l1;
+                     l1=l1->next;
+                 }
+                 if(l2){
+                     curr->next=l2;
+                     l2=l2->next;
+                 }
+                 return prev->next;
+             }
+             ListNode* sortList(ListNode* head) {
+                 if(!head || !head->next)
+                     return head;
+                 ListNode* slow=head,*fast=head,*temp=NULL;
+                 while(fast && fast->next){
+                     temp=slow;
+                     slow=slow->next;
+                     fast=fast->next->next;
+                 }
+                 temp->next=NULL;
+                 ListNode* point1=sortList(head),*point2=sortList(slow);
+                 return mergeList(point1,point2);
+             }
+
+### 10. Segregate even and odd nodes in a Linked List - Linked list
+   - split the linked list into two:  one containing all even nodes and the other containing all odd nodes. And finally, attach the odd node linked list after the even node linked list.
+   -
+               void segregateEvenOdd(struct Node** head_ref)
+               {
+                   Node* evenStart = nullptr;
+                   Node* evenEnd = nullptr;
+                   Node* oddStart = nullptr;
+                   Node* oddEnd = nullptr;
+                   Node* currNode = *head_ref;
+                   while (currNode != nullptr) {
+                       int val = currNode->data;
+                       if (val % 2 == 0) {
+                           if (evenStart == nullptr) {
+                               evenStart = currNode;
+                               evenEnd = evenStart;
+                           }
+                           else {
+                               evenEnd->next = currNode;
+                               evenEnd = evenEnd->next;
+                           }
+                       }
+                       else {
+                           if (oddStart == nullptr) {
+                               oddStart = currNode;
+                               oddEnd = oddStart;
+                           }
+                           else {
+                               oddEnd->next = currNode;
+                               oddEnd = oddEnd->next;
+                           }
+                       }
+                       currNode = currNode->next;
+                   }
+                   if (oddStart == nullptr || evenStart == nullptr)
+                       return;
+                   evenEnd->next = oddStart;
+                   oddEnd->next = nullptr;
+                   *head_ref = evenStart;
+               }
+
+### 11. Rearrange a Linked List in place - Linked list
+   - Find the middle point using tortoise and hare method.
+   - Split the linked list into two halves using found middle point in step 1.
+   - Reverse the second half.
+   - Do alternate merge of first and second halves
+   -
+               void rearrange(Node** head)
+               {
+                   Node *slow = *head, *fast = slow->next;
+                   while (fast && fast->next) {
+                       slow = slow->next;
+                       fast = fast->next->next;
+                   }
+                   Node* head1 = *head;
+                   Node* head2 = slow->next;
+                   slow->next = NULL;
+                   reverselist(&head2);
+                   *head = newNode(0); 
+                   Node* curr = *head;
+                   while (head1 || head2) {
+                       if (head1) {
+                           curr->next = head1;
+                           curr = curr->next;
+                           head1 = head1->next;
+                       }
+                       if (head2) {
+                           curr->next = head2;
+                           curr = curr->next;
+                           head2 = head2->next;
+                       }
+                   }
+                   *head = (*head)->next;
+               }
+
+
+### 12. Merge K sorted linked list - Heap priority queue
+   - Check for Empty List: If the input lists is empty, return NULL as there are no lists to merge.
+   - Priority Queue Initialization: Initialize a priority queue (pq) that will store pairs of integers and list indices. The queue is set up to use a min-heap to always provide the smallest value.
+   - Populate Queue: Iterate through each linked list in lists. If a list is not empty (nullptr), push its first node's value and the index of the list into the priority queue.
+   - Check Empty Queue: If the priority queue is still empty after the initial population, return NULL because there are no nodes to process.
+   - Initialize Result List: Create a temporary dummy node temp to start building the result list. Set head to point to this dummy node to retain the head of the result list.
+   - Process Queue: Enter a loop that continues until the priority queue is empty.
+   - Extract Minimum: Inside the loop, extract the node with the smallest value from the priority queue. Assign this value to temp->val.
+   - Advance List: Check if the extracted node's list has more nodes. If so, advance to the next node in that list and push its value and index into the priority queue.
+   - Add New Node: If the priority queue is not empty, create a new node for the next position in the result list, and advance temp to this new node.
+   - Break Loop: If the priority queue becomes empty, exit the loop. The result list is now fully constructed with head pointing to the first node of the merged sorted list. Return head.
+   -
+                 ListNode* mergeKLists(vector<ListNode*>& lists) {
+                    if(lists.empty())
+                        return NULL;
+                    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> pq;
+                    for(int i=0;i<lists.size();i++)
+                    {
+                        if(lists[i] != nullptr)
+                        {
+                            pq.push({lists[i]->val,i});
+                        }
+                    }
+                    if(pq.empty())
+                        return NULL;
+                    ListNode*temp = new ListNode();
+                    ListNode*head = temp;
+                    while(true)
+                    {
+                        auto it = pq.top();
+                        pq.pop();
+                        temp->val = it.first;
+                        if(lists[it.second]->next != nullptr)
+                        {
+                            lists[it.second] = lists[it.second]->next;
+                            pq.push({lists[it.second]->val,it.second});
+                        }
+                        if(!pq.empty())
+                        {
+                            temp->next = new ListNode();
+                            temp = temp->next;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    return head;
+                }
