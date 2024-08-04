@@ -2766,3 +2766,286 @@
                     }
                     return head;
                 }
+
+
+## Day - 21
+
+### 1. Reverse Nodes in K group  - Recursion
+   - The program first checks if there are at least k nodes to reverse by iterating through the list and counting k nodes.
+   - If there are at least k nodes, it reverses the next k nodes in the list using standard linked list reversal techniques.
+   - After reversing k nodes, it recursively calls reverseKGroup on the remainder of the list to process the next group of k nodes.
+   - If there are fewer than k nodes remaining, the function does not reverse these nodes and leaves them as they are.
+   - Finally, the function connects the end of the reversed portion to the head of the next reversed segment (or remaining nodes) and returns the new head of the reversed list.
+   -
+                 ListNode* reverseKGroup(ListNode* head, int k) {
+                    if(head==NULL){
+                        return head;
+                    }
+                    ListNode *curr=head;
+                    ListNode *temp=NULL;
+                    ListNode *prev=NULL;
+                    int count=0;
+                    while(curr!=NULL && count<k){
+                        curr=curr->next;
+                        count++;
+                    }
+                    curr=head;
+                    if(count==k){
+                        count=0;
+                        while(curr!=NULL && count<k){
+                            temp=curr->next;
+                            curr->next=prev;
+                            prev=curr;
+                            curr=temp;
+                            count++;
+                        }
+                    }else{
+                        prev=head;
+                    }
+                    if(temp!=NULL){
+                        head->next=reverseKGroup(temp,k);
+                    }
+                    return prev;
+                }
+
+### 2. Subtraction in Linked List  - Linked List
+   - Remove Leading Zeros: Ensure both linked lists do not have leading zeros (unless the number is zero).
+   - Identify the Larger Number: Compare the two linked lists to determine which number is larger.
+   - Perform Subtraction: Use recursion to traverse the lists to the end and subtract the smaller number from the larger number, managing the borrow operation.
+   - Remove Leading Zeros from Result: Ensure the resulting list does not have leading zeros.
+   -
+                 Node* removeLeadingZeros(Node* head) {
+                    while (head != nullptr && head->data == 0) {
+                        head = head->next;
+                    }
+                    return head ? head : new Node(0);
+                }
+                int getLength(Node* head) {
+                    int length = 0;
+                    while (head != nullptr) {
+                        length++;
+                        head = head->next;
+                    }
+                    return length;
+                }
+                int compareLists(Node* head1, Node* head2) {
+                    int len1 = getLength(head1);
+                    int len2 = getLength(head2);
+                    if (len1 != len2) {
+                        return len1 - len2;
+                    }
+                    while (head1 != nullptr && head2 != nullptr) {
+                        if (head1->data != head2->data) {
+                            return head1->data - head2->data;
+                        }
+                        head1 = head1->next;
+                        head2 = head2->next;
+                    }
+                    return 0;
+                }
+                int subtractHelper(Node* larger, Node* smaller, Node*& result) {
+                    if (larger == nullptr) {
+                        return 0;
+                    }
+                    Node* nextResult = nullptr;
+                    int borrow = subtractHelper(larger->next, smaller ? smaller->next : nullptr, nextResult);
+                    int largerVal = larger->data - borrow;
+                    int smallerVal = smaller ? smaller->data : 0;
+                    int diff = largerVal - smallerVal;
+                    if (diff < 0) {
+                        diff += 10;
+                        borrow = 1;
+                    } else {
+                        borrow = 0;
+                    }
+                    result = new Node(diff);
+                    result->next = nextResult;
+                    return borrow;
+                }
+                Node* subLinkedList(Node* head1, Node* head2) {
+                    head1 = removeLeadingZeros(head1);
+                    head2 = removeLeadingZeros(head2);
+                    Node* larger = head1;
+                    Node* smaller = head2;
+                    if (compareLists(head1, head2) < 0) {
+                        larger = head2;
+                        smaller = head1;
+                    }
+                    Node* result = nullptr;
+                    subtractHelper(larger, smaller, result);
+                    result = removeLeadingZeros(result);
+                    return result;
+                }
+
+### 3. Flattening a Linked List  - Linked List
+   - Define a vector (v) to store all the elements from the multi-level linked list.
+   - Iterate through each level using two nested loops:
+        - The outer loop iterates through each node on the top level (curr points to the current node).
+        - The inner loop iterates through the bottom-linked list of the current node, adding each element to the vector (v).
+   - After collecting all the elements in v, the code sorts the vector using the sort function.
+   - A new linked list (head) is created, with the first element from the sorted vector as the initial node. Then, the remaining elements are added to the linked list using a loop:
+        - A new node is created for each element in the sorted vector, and it is linked to the previous node's bottom.
+        - This effectively constructs a single-level linked list containing all the elements from the multi-level linked list.
+   - The final flattened and sorted linked list is returned
+   -
+                 Node *flatten(Node *root) {
+                   vector<int>v;
+                   Node *curr = root;
+                   while(curr!=NULL){
+                       Node *temp = curr;
+                       while(temp!=NULL){
+                           v.push_back(temp->data);
+                           temp = temp->bottom;
+                       }
+                       curr=curr->next;
+                   }
+                   sort(v.begin(), v.end());
+                   Node *head = new Node(v[0]);
+                   Node *curr1 = head;
+                   for(int i=1;i<v.size();i++){
+                       curr1->bottom = new Node(v[i]);
+                       curr1 = curr1->bottom;
+                   }
+                   return head;
+                }
+
+
+### 4. Implementing queue using stack  - Stack design
+   - Push Operation (push): Use one stack (stack1) for enqueueing elements by pushing them onto the stack.
+   - Pop and Peek Operations (pop and peek): For dequeueing elements, use a second stack (stack2) as an auxiliary stack. When performing a pop or peek operation, check if stack2 is empty. If it is, transfer elements from stack1 to stack2 to reverse the order. The top element of stack2 will then represent the front of the queue.
+   - Transfer Elements (transferElements): This function transfers elements from stack1 to stack2. While stack1 is not empty, pop elements from stack1 and push them onto stack2. This step is crucial for maintaining the FIFO order when using two stacks.
+   -
+              class MyQueue {
+               public:
+                   stack<int> s1,s2;
+                   void transferEle(){
+                       while(!s1.empty()){
+                           s2.push(s1.top());
+                           s1.pop();
+                       }
+                   }
+                   MyQueue() {
+                   }
+                   void push(int x) {
+                       s1.push(x);
+                   }
+                   int pop() {
+                       if(s2.empty()){
+                           transferEle();
+                       }
+                       int front=s2.top();
+                       s2.pop();
+                       return front;
+                   }
+                   int peek() {
+                       if(s2.empty()){
+                           transferEle();
+                       }
+                       return s2.top();
+                   }
+                   bool empty() {
+                       return s1.empty() && s2.empty();
+                   }
+               };
+
+
+### 5. Backspace string compare  - Two Pointers
+   - Initialize two pointers, i and j, to the last indices of strings s and t, respectively. Also, initialize two variables, skipS and skipT, to keep track of the number of backspaces encountered for each string.
+   - Use a while loop to iterate as long as at least one of the strings has characters left to process (i >= 0 || j >= 0).
+   - For each string s and t, find the next character that is not a backspace ('#'):
+        - While i >= 0 and s[i] is a backspace ('#'), increment skipS and decrement i.
+        - While j >= 0 and t[j] is a backspace ('#'), increment skipT and decrement j.
+   - Compare the current characters in s and t at indices i and j. If they are not equal and both i and j are valid indices, return false.
+   - If one of the strings has reached its end while the other hasn't, return false (e.g., if i >= 0 is not equal to j >= 0).
+   -
+           bool backspaceCompare(string s, string t) {
+              int i=s.length()-1,j=t.length()-1;
+              int skipS=0,skipT=0;
+              while(i>=0 || j>=0){
+                  while(i>=0 && (s[i]=='#' || skipS>0)){
+                      if(s[i]=='#'){
+                          skipS++;
+                      }else{
+                          skipS--;
+                      }
+                      i--;
+                  }
+                  while (j >= 0 && (t[j] == '#' || skipT > 0)) {
+                      if (t[j] == '#') {
+                          skipT++;
+                      } else {
+                          skipT--;
+                      }
+                      j--;
+                  }
+                  if((i>=0 && j>=0) && s[i]!=t[j]){
+                      return false;
+                  }
+                  if ((i >= 0) != (j >= 0)) {
+                      return false;
+                  }
+                  i--;
+                  j--;
+              }
+              return true;
+          }
+
+### 6. Implement stack using queues  - Queue design
+   - When pushing a new element, we first push it onto the queue. Then, we rotate the queue by pushing and popping elements until the newly pushed element becomes the front.
+   - Pop, top, and empty operations are straightforward, as they directly operate on the single queue
+   -
+                 class MyStack {
+                  public:
+                      queue<int> q;
+                      MyStack() {
+                      }
+                      void push(int x) {
+                          q.push(x);
+                          int n=q.size();
+                          for(int i=0;i<n-1;i++){
+                              q.push(q.front());
+                              q.pop();
+                          }
+                      }
+                      int pop() {
+                          int result=q.front();
+                          q.pop();
+                          return result;
+                      }
+                      int top() {
+                          return q.front();
+                      }
+                      bool empty() {
+                          return q.empty();
+                      }
+                  };
+
+### 7. Implement stack and queues using Dequeue  - Doubly linked list
+   - https://www.geeksforgeeks.org/implement-stack-queue-using-deque/
+
+### 8. Next greater element on the right - Hash and stack
+   - The function initializes a result vector res with the same size as nums1, filled with -1, a stack st, and a map mp.
+   - It iterates over each element num in nums2, and for each element, it updates the map with the next greater element for elements stored in the stack.
+   - During the iteration, if the current element num is greater than the stack's top element, it maps the stack's top element to num and pops the stack.
+   - After processing nums2, it iterates over each element in nums1, updating res with the corresponding next greater element from the map if it exists.
+   - Finally, the function returns the result vector res containing the next greater elements for each element in nums1
+   -
+              vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
+                 vector<int> res(nums1.size(),-1);
+                 stack<int> st;
+                 map<int,int> mp;
+                 for(int num:nums2){
+                     while(!st.empty() && st.top()<num){
+                         mp[st.top()]=num;
+                         st.pop();
+                     }
+                     st.push(num);
+                 }
+                 for(int i=0;i<nums1.size();i++){
+                     if(mp[nums1[i]]){
+                         res[i]=mp[nums1[i]];
+                     }
+                 }
+                 return res;
+             }
+     
