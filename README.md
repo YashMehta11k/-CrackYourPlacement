@@ -3048,4 +3048,251 @@
                  }
                  return res;
              }
+
+
+## Day - 22
+
+### 1. Evaluation of Postfix Expression - Stack
+   - If the character is an operator (+, -, *, /), we pop the top two elements from the stack.
+   - We perform the operation indicated by the character using the two operands.
+   - We push the result of the operation back onto the stack.
+   -
+              int evaluatePostfix(string S)
+             {
+                 stack<int> st;
+                 for (char c : S) {
+                     if (isdigit(c)) {
+                         st.push(c - '0');
+                     } else {
+                         int operand2 = st.top();
+                         st.pop();
+                         int operand1 = st.top();
+                         st.pop();
+                         switch (c) {
+                             case '+':
+                                 st.push(operand1 + operand2);
+                                 break;
+                             case '-':
+                                 st.push(operand1 - operand2);
+                                 break;
+                             case '*':
+                                 st.push(operand1 * operand2);
+                                 break;
+                             case '/':
+                                 st.push(operand1 / operand2);
+                                 break;
+                         }
+                     }
+                 }
+                 return st.top();
+             }
+
+### 2. Implement two stacks in an array - Stack
+   - Stack1 starts from the leftmost corner of the array, the first element in stack1 is pushed at index 0 of the array. 
+   - Stack2 starts from the rightmost corner of the array, the first element in stack2 is pushed at index (n-1) of the array. 
+   - Both stacks grow (or shrink) in opposite directions. 
+   -
+              class twoStacks {
+                 public:
+                   int *arr;
+                   int size;
+                   int top1,top2;
+                   twoStacks(int n=100) {
+                       size=n;
+                       arr=new int[n];
+                       top1=-1;
+                       top2=n;
+                   }
+                   void push1(int x) {
+                       if(top1<top2-1){
+                           top1++;
+                           arr[top1]=x;
+                       }
+                   }
+                   void push2(int x) {
+                       if(top1<top2-1){
+                           top2--;
+                           arr[top2]=x;
+                       }
+                   }
+                   int pop1() {
+                       if(top1>=0){
+                           int x=arr[top1];
+                           top1--;
+                           return x;
+                       }else
+                           return -1;
+                   }
+                   int pop2() {
+                       if(top2<size){
+                           int x=arr[top2];
+                           top2++;
+                           return x;
+                       }else
+                           return -1;
+                   }
+               };
      
+
+### 3. Daily Temperature - Monotonic Stack
+   - We traverse the temperatures array from right to left, maintaining a stack that stores the indices of the elements. For each element, we pop elements from the stack until we find an element greater than the current one. The difference in indices gives us the number of days until the next warmer day.
+   -
+              vector<int> dailyTemperatures(vector<int>& temperatures) {
+                 stack<int> st;
+                 int n=temperatures.size();
+                 vector<int> wait(n,0);
+                 for(int i=n-1;i>=0;i--){
+                     while(!st.empty() && temperatures[i]>=temperatures[st.top()])
+                         st.pop();
+                     if(!st.empty())
+                         wait[i]=st.top()-i;
+                     st.push(i);
+                 }
+                 return wait;
+             }
+
+### 4. Minimum cost tree for Leaf values - Dynammic programming, Monotonic Stack
+   - Since the non-leaf node value is the product of previous largest leaf and new leaf, the problem can be considered as a monostack problem.
+   - In order to find PGE (Previous Greater Element), the stack should be monotonous decreasing stack.
+   - Iterate Over Array: For each element in the array, maintain a leaf variable to track the smallest popped value.
+   - Monotonic Stack Maintenance: Use a while loop to pop elements from the stack if they are less than the current element, adding their products to ans and updating leaf.
+   - Push Current Element: Add the product of leaf and the current element to ans and push the current element onto the stack.
+   - Finalize Result: After processing the array, compute the sum of products for remaining elements in the stack to complete the result.
+   -
+     int mctFromLeafValues(vector<int>& arr) {
+        int n=arr.size(),ans=0;
+        vector<int> st;
+        for(int i=0;i<n;i++){
+            int leaf=0;
+            while(!st.empty() && st.back()<arr[i]){
+                ans+=leaf*st.back();
+                leaf=st.back();
+                st.pop_back();
+            }
+            ans+=leaf*arr[i];
+            st.push_back(arr[i]);
+        }
+        for(int i=0;i<st.size()-1;++i){
+            ans+=st[i]*st[i+1];
+        }
+        return ans;
+    }
+
+### 5. Online Stock span - Monotonic Stack
+   - Pop from Stack: While the stack is not empty and the current price is greater than or equal to the price at the index stored at the top of the stack, pop the stack.
+   - Calculate Span: If the stack is empty after popping, the span is the length of the vector plus one; otherwise, it is the difference between the current index and the index at the top of the stack.
+   - Push to Stack and Vector: Push the current index onto the stack and the current price onto the vector, then return the calculated span.
+   -
+                 class StockSpanner {
+            public:
+                stack<int> st;
+                vector<int> v;
+                StockSpanner() {}
+                int next(int price) {
+                    int span;
+                    while(!st.empty() && price>=v[st.top()]) 
+                        st.pop();
+                    span = st.empty() ? v.size()+1 : v.size()-st.top();
+                    st.push(v.size());
+                    v.push_back(price);    
+                        
+                    return span;     
+                }
+            };
+
+### 6. Rotten oranges - Queue, BFS
+   - Create an empty queue Q and two variables count(store number of oranges which is rotten or needs to be rotten) and answer(store answer). 
+   - Find all rotten oranges and enqueue them to Q also set the count variable accordingly. Run a loop While Q is not empty.
+   - Increase the answer by 1.
+   - Now calculate the size of the queue(i.e number of elements present in the queue) and run a loop from 0 to the size of the queue.
+         - Dequeue an orange from the queue, and rot all adjacent oranges(if present) and decrease the count variable.
+         - While rotting the adjacent, push the index into the queue.
+   - Now the oranges rotten this time frame is only present in the queue. If count>0 then return -1.
+   -
+              int orangesRotting(vector<vector<int>>& grid) {
+                 int count=0,res=-1;
+                 queue<vector<int>> q;
+                 vector<vector<int>> dir={{-1,0},{1,0},{0,-1},{0,1}};
+                 for(int i=0;i<grid.size();i++){
+                     for(int j=0;j<grid[0].size();j++){
+                         if(grid[i][j]>0){
+                             count++;
+                         }
+                         if(grid[i][j]==2)
+                             q.push({i,j});
+                     }
+                 }
+                 while(!q.empty()){
+                     res++;
+                     int size=q.size();
+                     for(int k=0;k<size;k++){
+                         vector<int> cur=q.front();
+                         count--;
+                         q.pop();
+                         for(int i=0;i<4;i++) 
+                         {
+                             int x=cur[0]+dir[i][0], y=cur[1]+dir[i][1];
+                             if(x>=grid.size()||x<0||y>=grid[0].size()||y<0||grid[x][y]!=1) 
+                                 continue;
+                             grid[x][y]=2;
+                             q.push({x, y});
+                         }
+                     }
+                 }
+                 if(count==0)
+                     return max(0,res);
+                 else
+                     return -1;
+             }
+
+### 7. Sum of Subarray minimum - Monostatic stack,DP
+   - If the stack is not empty after popping, the element arr[i] is the minimum for subarrays starting from the index of the element at the top of the stack (stack.back()) to i.
+   - Compute the contribution of arr[i] as dp[j] + arr[i] * (i - j) where j is the index at the top of the stack. Here, arr[i] contributes to the subarrays formed from j+1 to i.
+   - If the stack is empty, arr[i] is the minimum for all subarrays starting from index 0 to i, so compute the contribution as arr[i] * (i + 1).
+   -
+              int sumSubarrayMins(vector<int>& arr) {
+                 int n=arr.size(), mod=1e9+7;
+                 vector<long long> dp(n, -1);
+                 vector<int> stack;
+                 long long ans=0;
+                 for(int i=0;i<n;i++){
+                     while(!stack.empty() && arr[i]<=arr[stack.back()])
+                         stack.pop_back();
+                     if (!stack.empty()){
+                         int j=stack.back();
+                         dp[i]=dp[j]+arr[i]*(i-j);
+                     }
+                     else 
+                         dp[i]=arr[i]*(i+1);
+                     stack.push_back(i);
+                     ans=(ans+dp[i])%mod;
+                 }
+                 return ans;
+             }
+
+### 8. Evaluate reverse polish notation - Stack
+   - If the token is an operator:
+        - Pop the top two elements from the stack.
+        - Perform the operation based on the operator.
+        - Push the result back onto the stack.
+   - If the token is an operand: Convert it to an integer and push it onto the stack.
+   -
+              int evalRPN(vector<string>& tokens) {
+                 int n=tokens.size();
+                 stack<int> st;
+                 for(int i=0;i<n;i++){
+                     if(tokens[i] == "+" or tokens[i] == "-" or tokens[i] == "*" or tokens[i] == "/"){
+                             int num1 = st.top(); st.pop();
+                             int num2 = st.top(); st.pop();
+                             int newNum = 0;
+                             if(tokens[i] == "+") newNum = num2+num1;
+                             else if(tokens[i] == "-") newNum = num2-num1;
+                             else if(tokens[i] == "*") newNum = num2*num1;
+                             else newNum = num2/num1;
+                             st.push(newNum);
+                     }
+                     else st.push(stoi(tokens[i]));
+                 }
+                 return st.top();
+             }
+
