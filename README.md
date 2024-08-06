@@ -3296,3 +3296,285 @@
                  return st.top();
              }
 
+
+
+## Day - 23
+
+### 1. Circular tower - Sliding window, Two pointers, Queue
+   - Set two pointers, start = 0 and end = 1 to use the array as a queue.
+        - If the amount of petrol is efficient to reach the next petrol pump then increment the end pointer (circularly).
+        - Otherwise, remove the starting point of the current tour, i.e., increment the start pointer.
+   - If the start pointer reaches N then such a tour is not possible. Otherwise, return the starting point of the tour.
+   -
+           int tour(petrolPump p[],int n)
+          {
+             int start=0,end=1;
+             int curr=p[start].petrol-p[start].distance;
+             while(end!=start || curr<0){
+                 while(curr<0 && start!=end){
+                     curr-=p[start].petrol-p[start].distance;
+                     start=(start+1)%n;
+                     if(start==0)
+                      return -1;
+                 }
+                 curr+=p[end].petrol-p[end].distance;
+                 end=(end+1)%n;
+             }
+             return start;
+          }
+
+### 2. Remove all adjecent duplicated in a string II - Stack
+   - For each character in s, it pushes the character and a count of 1 onto the stack if the stack is empty or the character is different from the stack's top character.
+   - If the character is the same as the stack's top character, it increments the count at the stack's top, and pops the stack if the count reaches k.
+   - After processing all characters, the function constructs the result string by concatenating characters from the stack based on their counts.
+   -
+               string removeDuplicates(string s, int k) {
+                  stack<pair<char,int>> st;
+                  string res="";
+                  for(int i=0;i<s.size();i++){
+                      if(st.empty() || s[i]!=st.top().first){
+                          st.push({s[i],1});
+                      }else{
+                          st.top().second++;
+                          if(st.top().second==k){
+                              st.pop();
+                          }
+                      }
+                  }
+                  while(!st.empty()){
+                      res=string(st.top().second,st.top().first)+res;
+                      st.pop();
+                  }
+                  return res;
+              }
+
+### 3. Flatten nested list iterator - Stack, Tree, DFS
+   - In the constructor, the flatten function is called with the provided nestedList. This function recursively processes the nested structure and extracts integers from it.
+   - During the initialization phase, the flatten function populates the flattened vector with integers found in the nested list.
+   - The iterator keeps track of the current index, currentIndex, to indicate the next element to be retrieved using the next function.
+   - The next function returns the element at the current index and increments the index to prepare for the next call.
+   - The hasNext function checks if there are more elements to be processed by comparing the currentIndex with the size of the flattened vector.
+   -
+               class NestedIterator {
+                public:
+                    vector<int> flat;
+                    int curr;
+                    void flatten(const vector<NestedInteger> &nestedList){
+                        for(const auto& item:nestedList){
+                            if(item.isInteger()){
+                                flat.push_back(item.getInteger());
+                            }else{
+                                flatten(item.getList());
+                            }
+                        }
+                    }
+                    NestedIterator(vector<NestedInteger> &nestedList) {
+                        flatten(nestedList);
+                        curr=0;
+                    }
+                    int next() {
+                        return flat[curr++]; 
+                    }
+                    bool hasNext() {
+                        return curr<flat.size();
+                    }
+                };
+
+
+### 4. Maximum of Minimum of Every window size - Stack, Sliding window
+   - Initializing ans array of size n+1 with all values as 0. ans[i] will keep track of maximum of minimum values in window of size i.Filling answer list  by comparing minimums of all lengths computed using left[] and right[].
+   - Run a loop for i from 0 to n-1:
+   - In each iteration for loop: For ith element find length len for which it will be minimum element and take take max of ans[len] and a[i] and store the result in ans[len]
+   - The result for length i, i.e. ans[i] would always be greater or same as result for length i+1, i.e., ans[i+1].
+   - If ans[i] is not filled it means there is no direct element which is minimum of length i and therefore either the element of length ans[i+1], or ans[i+2], and so on is same as ans[i].
+   - Run a loop for i from n-1 to 1, and in each iteration do ans[i] = max(ans[i], ans[i + 1]).
+   -
+             vector <int> maxOfMin(int arr[], int n)
+            {
+                stack<int> s;
+                int left[n+1];
+                int right[n+1];
+                for(int i=0;i<n;i++){
+                    left[i]=-1;
+                    right[i]=n;
+                }
+                for(int i=0;i<n;i++){
+                    while(!s.empty() && arr[s.top()]>=arr[i])
+                        s.pop();
+                    if(!s.empty())
+                        left[i]=s.top();
+                    s.push(i);
+                }
+                while(!s.empty())
+                    s.pop();
+                for(int i=n-1;i>=0;i--){
+                    while(!s.empty() && arr[s.top()]>=arr[i])
+                        s.pop();
+                    if(!s.empty())
+                        right[i]=s.top();
+                    s.push(i);
+                }
+                int ans[n+1];
+                for(int i=0;i<=n;i++)
+                    ans[i]=0;
+                for(int i=0;i<n;i++){
+                    int len=right[i]-left[i]-1;
+                    ans[len]=max(ans[len],arr[i]);
+                }
+                for (int i = n - 1; i >= 1; i--) 
+                    ans[i] = max(ans[i], ans[i + 1]);
+                vector<int> res(n);
+                for(int i=1;i<=n;i++){
+                    res[i-1]=ans[i];
+                }
+                return res;
+            }
+
+### 5. LRU Cache - Hash table, doubly linked list
+   - Put
+    I find it in my hashmap if it is not present and size of unorderd map is less than container then I create a newNode right to head node of doubly linked list and insert map[key]=newNode.
+    continer is full then I delete the Node from Linked List left to tail delete(tail->prev). and then do same insertion as point 1.
+    if it is availabe in map then we make it most recent used we delete it from its location and put it right to head(head->next=NewNode) and update key value with newNode.
+   - Get
+    For get we just find the key in hashmap and if it is not present then return -1. elseif it is present then delete it from its location make it most recently used right to head and return its value
+   -
+             class LRUCache {
+            public:
+                int cap;
+                struct Node{
+                    int key;
+                    int data;
+                    struct Node *prev,*next;
+                    Node(int x,int y){
+                        key=x;
+                        data=y;
+                        prev=NULL;
+                        next=NULL;
+                    }
+                };
+                unordered_map<int,Node*> mp;
+                Node *head=new Node(0,0);
+                Node *tail=new Node(0,0);
+                LRUCache(int capacity) {
+                    cap=capacity;
+                    head->next=tail;
+                    tail->prev=head;
+                }
+                Node* createNode(int key,int val)
+                {
+                  Node*newNode=new Node(key,val);
+                    newNode->next=head->next;
+                        head->next->prev=newNode;
+                        head->next=newNode;
+                        newNode->prev=head;
+                        return newNode;
+                }
+                void deleteNode(Node* x)
+                {
+                  Node*temp=x;
+                  temp->prev->next=temp->next;
+                  temp->next->prev=temp->prev;
+                  temp->next=NULL;
+                  temp->prev=NULL;
+                  delete temp; 
+                }
+                int get(int key) {
+                    if(mp.find(key)!=mp.end()){
+                        auto it=mp.find(key);
+                        int ans=it->second->data;
+                        Node *newNode=createNode(it->second->key,it->second->data);
+                        deleteNode(it->second);
+                        mp.erase(key);
+                        mp[key]=newNode;
+                        return newNode->data;
+                    }
+                    return -1;
+                }
+                void put(int key, int value) {
+                    if(mp.find(key)==mp.end())
+                   {
+                     if(mp.size()<cap)
+                     {
+                        Node*newNode=createNode(key,value);
+                        mp[key]=newNode;
+                      }
+                      else
+                      {
+                          Node*x=tail->prev;
+                          int y=x->key;
+                          deleteNode(x);
+                          mp.erase(y);
+                         Node*newNode=createNode(key,value);
+                        mp[key]=newNode;
+                      }
+                   }
+                   else
+                   {
+                     auto it=mp.find(key);
+                     Node*x=it->second;
+                          int y=x->key;
+                          deleteNode(x);
+                          mp.erase(y);
+                           Node*newNode=new Node(key,value);
+                        newNode->next=head->next;
+                        head->next->prev=newNode;
+                        head->next=newNode;
+                        newNode->prev=head;
+                        mp[key]=newNode;
+                   } 
+                }
+            };
+
+### 6. Celebrity Problem - Stack, Two pointers
+   - Initialize Pointers: Start with two pointers: a at the beginning (0) and b at the end (n-1).
+   - If M[a][b] is 1, person a knows b, so a cannot be a celebrity, and move the a pointer to a + 1.
+   - If M[a][b] is 0, person a does not know b, so b cannot be a celebrity, and move the b pointer to b - 1.
+   - Check if this potential celebrity (a) is known by everyone and knows no one else. For a = 1: Check if M[1][i] = 0 for all i ≠ 1 (person 1 should know no one else). Check if M[i][1] = 1 for all i ≠ 1 (everyone should know person 1).
+   -
+             int celebrity(vector<vector<int> >& mat) {
+                int n=mat.size();
+                int a=0,b=n-1;
+                while(a<b){
+                    if(mat[a][b])
+                        a++;
+                    else
+                        b--;
+                }
+                for(int i=0;i<n;i++){
+                    if((i!=a) && (mat[a][i] || !mat[i][a]))
+                        return -1;
+                }
+                return a;
+            }
+
+### 7. Diameter of Binary Tree - DFS
+   - If the current node is null, it returns a height of 0.
+   - It calculates the height of the left and right subtrees by recursively calling height.
+   - It updates the diameter to the maximum value between the current diameter and the sum of the heights of the left and right subtrees.
+   -
+           int height(TreeNode* root,int &diameter){
+              if(!root)
+                  return 0;
+              int l=height(root->left,diameter);
+              int r=height(root->right,diameter);
+              diameter=max(diameter,l+r);
+              return max(l,r)+1;
+          }
+          int diameterOfBinaryTree(TreeNode* root) {
+              int diameter=0;
+              height(root,diameter);
+              return diameter;
+          }
+
+### 8. Invert Binary Tree - DFS
+   -
+           TreeNode* invertTree(TreeNode* root) {
+              if(!root)
+                  return NULL;
+              TreeNode* save=root->left;
+              root->left=root->right;
+              root->right=save;
+              invertTree(root->right);
+              invertTree(root->left);
+              return root;
+          }
