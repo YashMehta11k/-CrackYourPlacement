@@ -3762,3 +3762,201 @@
                          return root;
                  }
              }
+
+
+## Day - 25
+
+### 1. PathSum of Binary tree - DFS
+   - If the current node (root) is nullptr, it means there is no path. In this case, we will return false.
+   - If the current node is a leaf node (no left or right child), check whether the value of the leaf node equals the remaining targetSum. If true, return true; otherwise, return false.
+   - If the base cases are not met, subtract the value of the current node (root->val) from the targetSum.
+   - Make recursive calls to hasPathSum for the left and right subtrees (root->left and root->right).
+   - Return true if either of the recursive calls returns true, indicating the presence of a path with the desired sum.
+   -
+                 bool hasPathSum(TreeNode* root, int targetSum) {
+                    if(!root)
+                        return false;
+                    if(!root->left && !root->right)
+                        return root->val==targetSum;
+                    targetSum-=root->val;
+                    return (hasPathSum(root->left,targetSum) || hasPathSum(root->right,targetSum));
+                }
+
+### 2. Minimum absolute difference - DFS
+   - In-Order Traversal: Perform an in-order traversal of the BST to collect the node values in a list. This ensures the values are in ascending order.
+   - Compute Minimum Difference: Iterate through the sorted list of values and compute the differences between consecutive elements.
+   - Track the minimum difference encountered during this iteration.
+   -
+              void inOrder(TreeNode* root,vector<int> &vals){
+                 if(!root)
+                     return;
+                 inOrder(root->left,vals);
+                 vals.push_back(root->val);
+                 inOrder(root->right,vals);
+             }
+             int getMinimumDifference(TreeNode* root) {
+                 vector<int> vals;
+                 inOrder(root,vals);
+                 int minDiff=INT_MAX;
+                 for(int i=1;i<vals.size();++i){
+                     minDiff=min(minDiff,vals[i]-vals[i-1]);
+                 }
+                 return minDiff;
+             }
+
+
+### 3. Sum of Left leaves - DFS
+   - If the current node has a left child, the function checks if the left child is a leaf (no left or right children), and if true, adds the left child's value to ans.
+   - The helper function then recursively traverses the left and right subtrees of the current node.
+   -
+              void helper(TreeNode* root,int &ans){
+                 if(!root)
+                     return;
+                 if(root->left){
+                     if(!root->left->left && !root->left->right)
+                         ans+=root->left->val;
+                 }
+                 helper(root->left,ans);
+                 helper(root->right,ans);
+             }
+             int sumOfLeftLeaves(TreeNode* root) {
+                 int ans=0;
+                 helper(root,ans);
+                 return ans;
+             }
+
+### 4. Balanced Binary tree - DFS
+   - recursively calculate the height of the left and right subtrees of each node. If at any point the absolute difference between the heights of the left and right subtrees exceeds 1, the check flag is set to false.
+   - The height of each node is then calculated as the maximum of the heights of its left and right subtrees plus 1.
+   -
+           int heightOf(TreeNode* root, bool &check){
+              if(!root)
+                  return 0;
+              int hl=heightOf(root->left,check);
+              int hr=heightOf(root->right,check);
+              if(abs(hl-hr)>1)
+                  check=false;
+              return max(hr,hl)+1;
+          }
+          bool isBalanced(TreeNode* root) {
+              bool check=true;
+              heightOf(root,check);
+              return check;
+          }
+
+### 5. Predecessor and Successor - BST
+   - Check if root is NULL then return (Base case).
+   - If the value of the current node is smaller than the given node, we will set the predecessor as the current node and move to its right child.
+   - Else, we will set the successor as the current node and move to its left child.
+   - And if we reach the node which is equal to the value of given node, then find the maximum value of the left subtree and the minimum value of the right subtree from the current root node. Then set the values of the predecessor and successor, accordingly.
+   -
+             void findPreSuc(Node* root, Node*& pre, Node*& suc, int key)
+             {
+             	if (root == NULL) return ;
+             	if (root->key == key)
+             	{
+             		if (root->left != NULL)
+             		{
+             			Node* tmp = root->left;
+             			while (tmp->right)
+             				tmp = tmp->right;
+             			pre = tmp ;
+             		}
+             		if (root->right != NULL)
+             		{
+             			Node* tmp = root->right ;
+             			while (tmp->left)
+             				tmp = tmp->left ;
+             			suc = tmp ;
+             		}
+             		return ;
+             	}
+             	if (root->key > key)
+             	{
+             		suc = root ;
+             		findPreSuc(root->left, pre, suc, key) ;
+             	}
+             	else
+             	{
+             		pre = root ;
+             		findPreSuc(root->right, pre, suc, key) ;
+             	}
+             }
+
+### 6. Binary Tree Inorder Traversal - DFS, Stack
+   - We use a recursive helper function to perform the inorder traversal.
+   - In the helper function, we traverse the left subtree, add the root value to the result, and then traverse the right subtree.
+   - The base case ensures that the traversal stops when we reach a null node.
+   -
+              vector<int> inorderTraversal(TreeNode* root) {
+                 vector<int> result;
+                 helper(root, result);
+                 return result;
+             }
+             void helper(TreeNode* root, vector<int>& result) {
+                 if (root) {
+                     helper(root->left, result);
+                     result.push_back(root->val);
+                     helper(root->right, result);
+                 }
+             }
+
+### 7. Check if BST has deadend - DFS
+   - If the root is null, it means we have reached a leaf node, so return false because there's no dead end here.
+   - Check if the current node's data is exactly 1 less than Min and 1 greater than Max. If so, return true as it indicates a dead end.
+   - Recursively call the find method on the left and right subtrees, updating Min and Max accordingly.
+   - If any of the recursive calls returns true, it means a dead end was found in one of the subtrees, so return true.
+   - If no dead end is found in the current subtree, return false.
+   -
+              void make(set<int> &l,set<int> &n,Node* root){
+                 if(!root)
+                     return;
+                 n.insert(root->data);
+                 if(!root->left && !root->right){
+                     l.insert(root->data);
+                     return;
+                 }
+                 make(l,n,root->left);
+                 make(l,n,root->right);
+             }
+             bool isDeadEnd(Node *root)
+             {
+                 set<int> leaf,node;
+                 make(leaf,node,root);
+                 node.insert(0);
+                 for(auto i=leaf.begin();i!=leaf.end();i++){
+                     int ii=(*i);
+                     if(node.find(ii-1)!=node.end() && node.find(ii+1)!=node.end()){
+                         return true;
+                     }
+                 }
+                 return false;
+             }
+
+### 8. Binary search tree iterator - DFS, Stack
+   - The partialInorder function pushes all leftmost nodes of the current subtree onto the stack, setting up the stack for the in-order traversal.
+   - The next() function pops the top node from the stack (which represents the next in-order node), processes its value, and then calls partialInorder on its right subtree to continue the in-order traversal.
+   -
+              class BSTIterator {
+               public:
+                   stack<TreeNode*> s;
+                   void partialInorder(TreeNode* root){
+                       while(root){
+                           s.push(root);
+                           root=root->left;
+                       }
+                   }
+                   BSTIterator(TreeNode* root) {
+                       partialInorder(root);
+                   }
+                   int next(){
+                       TreeNode* top=s.top();
+                       s.pop();
+                       partialInorder(top->right);
+                       return top->val;
+                   }
+                   bool hasNext() {
+                       return !s.empty();
+                   }
+               };
+            
