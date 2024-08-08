@@ -3571,10 +3571,194 @@
            TreeNode* invertTree(TreeNode* root) {
               if(!root)
                   return NULL;
+              invertTree(root->right);
+              invertTree(root->left);
               TreeNode* save=root->left;
               root->left=root->right;
               root->right=save;
-              invertTree(root->right);
-              invertTree(root->left);
               return root;
           }
+
+
+## Day - 24
+
+### 1. Subtree of another tree - DFS, Hashing
+   - Base cases:
+        - If both nodes are empty, they are considered the same.
+        - If only one node is empty, they are not the same.
+        - If values of corresponding nodes are different, they are not the same.
+   - Recursively checks left and right subtrees for equality.
+   - Performs a depth-first search (DFS) on the main tree:
+   - If the current node's value matches the subRoot's value:
+        - Calls isSameTree to check if the subtree starting from the current node is the same as the subRoot.
+        - If isSameTree returns true, the trees are the same, and it returns true.
+   -
+              bool isSameTree(TreeNode* p,TreeNode* q){
+                 if(!p && !q){
+                     return true;
+                 }else if(!p && q){
+                     return false;
+                 }else if(p && !q){
+                     return false;
+                 }
+                 if(p->val!=q->val){
+                     return false;
+                 }
+                 if(!isSameTree(p->left,q->left) || !isSameTree(p->right,q->right)){
+                     return false;
+                 }
+                 return true;
+             }
+             bool isSubtree(TreeNode* root, TreeNode* subRoot) {
+                 if(!root)
+                     return false;
+                 if(isSubtree(root->left,subRoot) || isSubtree(root->right,subRoot)){
+                     return true;
+                 }
+                 if(root->val==subRoot->val){
+                     return isSameTree(root,subRoot);
+                 }
+                 return false;
+             }
+
+### 2. Range Sum of BST - DFS
+   - If the node’s value is less than low, we only need to search the right subtree, because all values in the left subtree will also be less than low.
+   - If the node’s value is greater than high, we only need to search the left subtree, because all values in the right subtree will also be greater than high.
+   - If the node’s value is between low and high, we add it to our sum and continue our search on both the left and right subtrees.
+   -
+                 int rangeSumBST(TreeNode* root, int low, int high) {
+                    if(!root)
+                        return 0;
+                    if(root->val<low)
+                        return rangeSumBST(root->right,low,high);
+                    if(root->val>high)
+                        return rangeSumBST(root->left,low,high);
+                    return root->val+rangeSumBST(root->left,low,high)+rangeSumBST(root->right,low,high);
+                }
+
+### 3. Symmetric Tree - DFS, BFS
+   - The helper function returns true if both nodes are null, indicating symmetry at that level.
+   - It returns false if only one of the nodes is null, indicating asymmetry.
+   - If both nodes are not null, it checks if the current nodes' values are equal and recursively checks their mirrored children (left's left with right's right and left's right with right's left).
+   -
+              bool helper(TreeNode* left,TreeNode* right){
+                 if(!left && !right)
+                     return true;
+                 if(!left || !right)
+                     return false;
+                 return left->val==right->val && helper(left->left,right->right) && helper(left->right,right->left);
+             }
+             bool isSymmetric(TreeNode* root) {
+                 if(!root)
+                     return true;
+                 return helper(root->left,root->right);
+             }
+
+### 4. Convert sorted array to BST - Divide and conquer
+   - Element To The Left Will Form Left SubTree. l to m-1
+   - Element To The Right Will Form Right SubTree. m+1 to h
+   - Recursively Create Left & Right SubTree.
+         - a->left=Convert(l,m-1,A)
+         - a->right=Convert(m+1,h,A)
+   -
+              TreeNode* helper(int l,int h,vector<int> &nums){
+                 if(h<l)
+                     return NULL;
+                 int m=l+(h-l)/2;
+                 TreeNode* temp=new TreeNode(nums[m]);
+                 temp->right=helper(m+1,h,nums);
+                 temp->left=helper(l,m-1,nums);
+                 return temp;
+             }
+             TreeNode* sortedArrayToBST(vector<int>& nums) {
+                 return helper(0,nums.size()-1,nums);
+             } 
+
+### 5. Merge two binary trees - DFS
+   - If both root1 and root2 are null, it returns null, indicating the end of that branch.
+   - If root1 is null, it returns root2, effectively using root2's subtree. If root2 is null, it returns root1, effectively using root1's subtree.
+   - If both nodes are not null, it adds root2's value to root1's value, and recursively merges their left and right children, returning the merged root1.
+   -
+              TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+                 if(!root1 && !root2)
+                     return NULL;
+                 if(!root1)
+                     return root2;
+                 if(!root2)
+                     return root1;
+                 root1->val+=root2->val;
+                 root1->left=mergeTrees(root1->left,root2->left);
+                 root1->right=mergeTrees(root1->right,root2->right);
+                 return root1;
+             }
+
+### 6. Maximum depth of a Binary tree - DFS
+   - It's a recursive approach where the maximum depth of the left subtree and the maximum depth of the right subtree are calculated, and then the maximum of the two is returned, incremented by one to include the current node.
+   -
+              int maxDepth(TreeNode* root) {
+                 if(!root)
+                     return 0;
+                 return max(maxDepth(root->left),maxDepth(root->right))+1;
+             }
+
+### 7. Binary tree Paths - Backtracking, DFS
+   - If the current node is a leaf (both left and right children are null), it finalizes the path by appending the node's value to cur, adding the path to res, and then returns after popping the last character.
+   - If the current node has children, it appends the node's value and "->" to cur and recursively calls dfs for the left and right children if they exist.
+   - After exploring both children, it removes the last two characters ("->") from cur to backtrack and explore other paths, ensuring the path string is correctly formed for each leaf node.
+   -
+              void dfs(vector<string>& res,string cur,TreeNode* root){
+                 if(!root->left && !root->right){
+                     cur+=to_string(root->val);
+                     res.push_back(cur);
+                     cur.pop_back();
+                     return;
+                 }
+                 cur+=to_string(root->val)+"->";
+                 if(root->left)
+                     dfs(res,cur,root->left);
+                 if(root->right)
+                     dfs(res,cur,root->right);
+                 cur.pop_back();
+                 cur.pop_back();
+             }
+             vector<string> binaryTreePaths(TreeNode* root) {
+                 vector<string> res;
+                 string cur;
+                 dfs(res,cur,root);
+                 return res;
+             }
+
+### 8. Same Trees - DFS
+   -
+            bool isSameTree(TreeNode* p,TreeNode* q){
+                 if(!p && !q){
+                     return true;
+                 }else if(!p && q){
+                     return false;
+                 }else if(p && !q){
+                     return false;
+                 }
+                 if(p->val!=q->val){
+                     return false;
+                 }
+                 if(!isSameTree(p->left,q->left) || !isSameTree(p->right,q->right)){
+                     return false;
+                 }
+                 return true;
+             }
+
+### 9. Lowest Common Ancester of BST - DFS
+   - If both p and q are less than the current node's value, then both nodes must be in the left subtree. Move to the left child.
+   - If both p and q are greater than the current node's value, then both nodes must be in the right subtree. Move to the right child.
+   - If the values of p and q lie on opposite sides of the current node (or one of them is equal to the current node), then the current node is the LCA.
+   -
+              TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+                 while(true){
+                     if(root->val>p->val && root->val>q->val)
+                         root=root->left;
+                     else if(root->val<p->val && root->val<q->val)
+                         root=root->right;
+                     else
+                         return root;
+                 }
+             }
