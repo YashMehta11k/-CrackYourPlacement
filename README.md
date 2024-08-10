@@ -3960,3 +3960,193 @@
                    }
                };
             
+
+## Day - 26
+
+### 1. Lowest common ancester of Binary tree - DFS
+   - The function lowestCommonAncestor checks if the current node (root) is null and returns null if it is, indicating there's no LCA in this path.
+   - If the current node is either p or q, it returns root because a node is the ancestor of itself.
+   - The function recursively calls itself on the left and right subtrees to find p and q within them, storing the results in left and right.
+   - If both left and right are non-null, it means p and q were found in different subtrees, so the current node (root) is their lowest common ancestor.
+   - If only one of left or right is non-null, it returns the non-null node, indicating that the LCA is located in that subtree.
+   -
+              TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+                 if(!root)
+                     return NULL;
+                 if(root==p || root==q)
+                     return root;
+                 TreeNode* left=lowestCommonAncestor(root->left,p,q);
+                 TreeNode* right=lowestCommonAncestor(root->right,p,q);
+                 if(left && right)
+                     return root;
+                 return left?left:right;
+             }
+
+### 2. Unique Binary Search tree II - Backtracking, Recursion
+   - Base Case: If start > end, there are no valid trees for this range, so NULL is added to the list (ans) to represent an empty subtree, and the function returns this list.
+   - Iterating Roots: For each possible root value i in the range start to end, the function recursively generates all possible left subtrees from the range start to i-1 and all possible right subtrees from the range i+1 to end.
+   - Combining Subtrees: For each combination of left and right subtrees (represented as lists of trees), a new tree is created with i as the root, and the corresponding left and right subtrees are attached to this root.
+   - Storing the Result: The newly formed tree (with root i and its left and right subtrees) is added to the list of answers (ans), and once all possible trees for the current range are generated, ans is returned.
+   -
+              vector<TreeNode*> build(int start,int end){
+                 vector<TreeNode*> ans;
+                 if(start>end){
+                     ans.push_back(NULL);
+                 }
+                 for(int i=start;i<=end;i++){
+                     vector<TreeNode*> leftSubTree = build(start, i - 1);
+                     vector<TreeNode*> rightSubTree = build(i + 1, end); 
+                     for(int j=0;j<leftSubTree.size();j++){
+                         for(int k=0;k<rightSubTree.size();k++){
+                             TreeNode* root=new TreeNode(i);
+                             root->left=leftSubTree[j];
+                             root->right=rightSubTree[k];
+                             ans.push_back(root);
+                         }
+                     }
+                 }
+                 return ans;
+             }
+             vector<TreeNode*> generateTrees(int n) {
+                 return build(1,n);
+             }
+
+### 3. All nodes distance K in Binary tree - DFS
+   - Construct a map parentMap to store the parent-child relationships while traversing the tree.
+   - Perform BFS starting from the target node.
+   - Mark visited nodes using a map visited.
+   - Decrement the distance K until it reaches 0.
+   - At each level of BFS, consider the left child, right child, and parent nodes.
+   - Collect the nodes at distance K from the target node.
+   - Return the collected nodes.
+   -
+           vector<int> distanceK(TreeNode* root, TreeNode* target, int K) {
+              map<TreeNode*,TreeNode*> parent;
+              queue<TreeNode*> bfs;
+              bfs.push(root);
+              while(!bfs.empty()){
+                  TreeNode* curr=bfs.front();
+                  bfs.pop();
+                  if(curr->left){
+                      parent[curr->left]=curr;
+                      bfs.push(curr->left);
+                  }
+                  if(curr->right){
+                      parent[curr->right]=curr;
+                      bfs.push(curr->right);
+                  }
+              }
+              map<TreeNode*,bool> vis;
+              queue<TreeNode*> nodes;
+              nodes.push(target);
+              vis[target]=true;
+              while(!nodes.empty()){
+                  if(K==0)
+                      break;
+                  K--;
+                  int size=nodes.size();
+                  for(int i=0;i<size;i++){
+                      TreeNode* curr=nodes.front();
+                      nodes.pop();
+                      if (curr->left && !vis[curr->left]) {
+                          nodes.push(curr->left);
+                          vis[curr->left] = true; 
+                      }
+                      if (curr->right && !vis[curr->right]) {
+                          nodes.push(curr->right);
+                          vis[curr->right] = true;
+                      }
+                      if (parent[curr] && !vis[parent[curr]]) {
+                          nodes.push(parent[curr]);
+                          vis[parent[curr]] = true; 
+                      }
+                  }
+              }
+              vector<int> result;
+              while(!nodes.empty()){
+                  result.push_back(nodes.front()->val);
+                  nodes.pop();
+              }
+              return result;
+          }
+
+### 4. Validate BST - DFS
+   - In-order Traversal (In): The In(TreeNode* root) function performs an in-order traversal of the tree, which visits nodes in the order of left subtree, root, and right subtree, ensuring that values are processed in ascending order for a BST.
+   - Populating the Vector (v): During the in-order traversal, the values of the nodes are stored sequentially in the vector v, which will contain the node values in sorted order if the tree is a valid BST.
+   - Validation (isValidBST): The isValidBST(TreeNode* root) function first checks if the tree is empty (root == NULL), in which case it returns true because an empty tree is trivially a valid BST.
+   -
+              class Solution {
+               public:
+                   vector<int> v;
+                   void In(TreeNode* root){
+                       if(root){
+                           In(root->left);
+                           v.push_back(root->val);
+                           In(root->right);
+                       }
+                   }
+                   bool isValidBST(TreeNode* root) {
+                       if(!root)
+                           return true;
+                       In(root);
+                       for(int i=0;i<v.size()-1;i++){
+                           if(v[i]>=v[i+1]){
+                               return false;
+                           }
+                       }
+                       return 1;
+                   }
+               };
+
+
+### 5. Right Side view of Binary tree - BFS
+   - Breadth-First Traversal: Use a queue to perform a level-order traversal of the binary tree. This allows us to process all nodes at each level before moving to the next level.
+   - Capture Rightmost Node: For each level, keep track of the first node we process, which will be the rightmost node for that level. Add this node's value to the result list.
+   - Process Children: For each node, push its right child first and then its left child into the queue. This ensures that we encounter the rightmost node first at each level.
+   -
+              vector<int> rightSideView(TreeNode* root) {
+                 if (!root) return {};
+                 queue<TreeNode *> q;
+                 q.push(root);
+                 vector<int> ans;
+                 while (!q.empty()) {
+                     int size = q.size();
+                     bool flag = true;
+                     for (int i = 0; i < size; i++) {
+                         auto t = q.front();
+                         q.pop();
+                         if (flag) {
+                             ans.push_back(t->val);
+                             flag = false;
+                         }
+                         if (t->right) q.push(t->right);
+                         if (t->left) q.push(t->left);
+                     }
+                 }
+                 return ans;
+             }
+
+### 6. Binary tree Level Order traversal - BFS
+   -
+              vector<vector<int>> levelOrder(TreeNode* root) {
+                 vector<vector<int>> ans;
+                 if (!root) 
+                     return ans;
+                 queue<TreeNode*> q;
+                 q.push(root);
+                 while (!q.empty()) {
+                     int level_size = q.size();
+                     vector<int> level;
+                     for (int i = 0; i < level_size; ++i) {
+                         TreeNode* node = q.front();
+                         q.pop();
+                         level.push_back(node->val);
+                         if (node->left) 
+                             q.push(node->left);
+                         if (node->right) 
+                             q.push(node->right);
+                     }
+                     ans.push_back(level);
+                 }
+                 return ans;
+             }
