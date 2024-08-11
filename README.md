@@ -4150,3 +4150,139 @@
                  }
                  return ans;
              }
+
+
+## Day - 27
+
+### 1. Path Sum III - DFS
+   - Prefix Sum Storage: Use a hash map (or dictionary) to store the count of prefix sums encountered during the DFS traversal. Initialize the map with {0: 1} to handle cases where a path sum directly equals the target sum.
+   - DFS Traversal: Traverse the tree using DFS. For each node:
+        - Update the current path sum by adding the value of the current node.
+        - Calculate the number of valid paths that end at the current node by checking how many times current_sum - target_sum has been encountered before.
+   - Recursively apply DFS to the left and right children of the current node.After exploring both subtrees, backtrack by removing the current path sum from the hash map to avoid affecting other paths.
+   -
+           int dfs(TreeNode* node,long currSum,int targetSum,unordered_map<long,int> &sum){
+              if(!node)
+                  return 0;
+              currSum+=node->val;
+              int count=sum[currSum-targetSum];
+              sum[currSum]++;
+              count+=dfs(node->left,currSum,targetSum,sum)+dfs(node->right,currSum,targetSum,sum);
+              sum[currSum]--;
+              return count;
+          }
+          int pathSum(TreeNode* root, int targetSum) {
+              unordered_map<long,int> sum;
+              sum[0]=1;
+              return dfs(root,0,targetSum,sum);
+          }
+
+
+ ### 2. Construct Binary Tree from Preorder or Postorder traversal - Hash Table, Div and conquer
+   - The root of the tree or subtree is always the first element in the preorder array (pre[preIndex]).
+   - We increment preIndex after selecting the root, so that the next time we call the function, the next root will be chosen.
+   - The position of this next root in the postorder traversal helps you determine the boundary of the left subtree. Everything before this position in the postorder array (including this position) belongs to the left subtree. The remaining elements after this boundary belong to the right subtree.
+   - By recursively dividing the postorder array using the preorder root values, you effectively partition the tree into its left and right subtrees at each level.
+   - 
+   -
+            class Solution {
+            public:
+                int search(vector<int>& post,int start,int end,int ele){
+                    for(int i=start;i<=end;i++){
+                        if(post[i]==ele)
+                            return i;
+                    }
+                    return -1;
+                }
+                int preIndex=0;
+                TreeNode* helper(vector<int>& pre, vector<int>& post,int start,int end){
+                    if(start>end || preIndex>=pre.size())
+                        return NULL;
+                    TreeNode* root=new TreeNode(pre[preIndex++]);
+                    if(preIndex>=pre.size() || start==end)
+                        return root;
+                    int pos=search(post,start,end,pre[preIndex]);
+                    root->left=helper(pre,post,start,pos);
+                    root->right=helper(pre,post,pos+1,end-1);
+                    return root;
+                }
+                TreeNode* constructFromPrePost(vector<int>& preorder, vector<int>& postorder) {
+                    int n=preorder.size();
+                    return helper(preorder,postorder,0,n-1);
+                }
+            };    
+
+### 3. Unique BST - DP
+   - Create an array dp of size 20 (max 20 nodes as given)
+   - dp[0] = 1 and dp[1] = 1. (Base condition)
+   - Run for loop from i = 1 to i <= n and call recursion for each i.
+   - dp[n] += numTrees(i-1) * numTrees(n-i); , this line fills the complete dp array.
+   - if(dp[n]) return dp[n]; , here we simply return the dp[n] if it's already filled so that we can avoid unneccesary recursion and calculations.
+   -
+   -
+          int dp[20]{};
+          int numTrees(int n) {
+              if(n<=1)
+                  return 1;
+              if(dp[n])
+                  return dp[n];
+              for(int i=1;i<=n;i++){
+                  dp[n]+=numTrees(i-1)*numTrees(n-i);
+              }
+              return dp[n];
+          }
+
+### 4. Recover BST - DFS
+   - Perform an in-order traversal of the BST. During this traversal, keep track of the previous node to compare with the current node.
+   - Identify the two nodes that are out of order:
+        - The first node (let's call it firstMistake) is the node where we find the first deviation from the expected sorted order.
+        - The second node (let's call it secondMistake) is the node where we find the second deviation.
+   -
+             TreeNode* firstMistake = nullptr;
+             TreeNode* secondMistake = nullptr;
+             TreeNode* pre = nullptr;
+             void inorder(TreeNode* root) {
+                 if (root == nullptr)
+                     return;
+                 inorder(root->left);
+                 if (firstMistake == nullptr && root->val < pre->val)
+                     firstMistake = pre;
+                 if (firstMistake != nullptr && root->val < pre->val)
+                     secondMistake = root;
+                 pre = root;
+                 inorder(root->right);
+             }
+             void recoverTree(TreeNode* root) {
+                 pre = new TreeNode(INT_MIN); 
+                 inorder(root);
+                 swap(firstMistake->val, secondMistake->val); 
+             }
+
+### 5. Populating the next right pointers in each node - DFS
+   - using BFS we can travel level by level and we will keep on checking if it's last node on that level if it is we will attach it to NULL else we will attach it to the next node in the queue.
+   - We won't be popping the next node since it will be required in the next iteration
+   - After attaching the next pointer we will check if the node has a right or left child and push it in the queue.
+   -
+              Node* connect(Node* root) {
+                 if(!root)
+                     return NULL;
+                 queue<Node*> q;
+                 q.push(root);
+                 while(!q.empty()){
+                     int size = q.size();
+                     for(int i=0;i<size;i++){
+                         Node* node = q.front();
+                         q.pop();
+                         if(i==size-1) 
+                             node->next=NULL;
+                         else
+                             node->next = q.front();
+                         if(node->left) 
+                             q.push(node->left);
+                         if(node->right) 
+                             q.push(node->right);
+                     }
+                 }
+                 return root;
+             }
+
